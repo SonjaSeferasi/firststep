@@ -1,0 +1,16 @@
+###
+GET http://localhost:8081/api/trips
+Content-Type: application/json
+
+
+###
+POST http://localhost:8081/api/trips
+Content-Type: application/json
+
+{
+  "userId": "64f123456789123456789012",
+  "originStop": "Park Street",
+  "destinationStop": "Harvard",
+  "lineUsed": "Red",
+  "totalMinutes": 15
+}
