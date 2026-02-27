@@ -1,9 +1,5 @@
 ###
-GET http://localhost:8081/api/trips
-Content-Type: application/json
-
-
-###
+# Create trip - should return 201 Created
 POST http://localhost:8081/api/trips
 Content-Type: application/json
 
@@ -14,3 +10,8 @@ Content-Type: application/json
   "lineUsed": "Red",
   "totalMinutes": 15
 }
+
+###
+# Get trips - should return 200 OK and include the created trip in the list
+GET http://localhost:8081/api/trips
+Content-Type: application/json
