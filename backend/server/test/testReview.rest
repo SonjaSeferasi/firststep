@@ -1,0 +1,18 @@
+###
+# Create Review - should return 201 Created
+POST http://localhost:8081/api/reviews
+Content-Type: application/json
+
+{
+  "userId": "64f123456789123456789012",
+  "targetType": "station",
+  "targetId": "64f123456789123456789099",
+  "rating": 5,
+  "reviewText": "Very clean station and easy to navigate.",
+  "photos": []
+}
+
+###
+# Get Reviews - should return 200 OK and include the created review
+GET http://localhost:8081/api/reviews
+Content-Type: application/json
