@@ -10,8 +10,13 @@ const editUser = require('./routes/userEditUser')
 const deleteUser = require('./routes/userDeleteAll')
 const createTripRoute = require("./routes/trips/createTrip");
 const getAllTripsRoute = require("./routes/trips/getAllTrips");
+<<<<<<< HEAD
 const createReviewRoute = require("./routes/Reviews/reviews");
 const getAllReviewsRoute = require("./routes/Reviews/getReviews");
+=======
+const createReviewRoute = require("./routes/reviews/Review");
+const getAllReviewsRoute = require("./routes/reviews/getAllReviews");
+>>>>>>> 1d35c573bee043edf788458b844d5fb2d8c23498
 
 
 

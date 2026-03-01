@@ -15,4 +15,8 @@ Content-Type: application/json
 ###
 # Get Reviews - should return 200 OK and include the created review
 GET http://localhost:8081/api/reviews
+<<<<<<< HEAD
 Content-Type: application/json
+=======
+Content-Type: application/json
+>>>>>>> 1d35c573bee043edf788458b844d5fb2d8c23498
