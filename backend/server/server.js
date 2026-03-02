@@ -10,13 +10,10 @@ const editUser = require('./routes/userEditUser')
 const deleteUser = require('./routes/userDeleteAll')
 const createTripRoute = require("./routes/trips/createTrip");
 const getAllTripsRoute = require("./routes/trips/getAllTrips");
-<<<<<<< HEAD
 const createReviewRoute = require("./routes/Reviews/reviews");
 const getAllReviewsRoute = require("./routes/Reviews/getReviews");
-=======
-const createReviewRoute = require("./routes/reviews/Review");
-const getAllReviewsRoute = require("./routes/reviews/getAllReviews");
->>>>>>> 1d35c573bee043edf788458b844d5fb2d8c23498
+const createAlertRoute = require("./routes/serviceAlert/createAlert");
+const getAlertsRoute = require("./routes/serviceAlert/getAlerts");
 
 
 
@@ -36,6 +33,8 @@ app.use("/api/trips", createTripRoute);   // POST /api/trips
 app.use("/api/trips", getAllTripsRoute);  // GET  /api/trips
 app.use("/api/reviews", createReviewRoute);
 app.use("/api/reviews", getAllReviewsRoute);
+app.use("/api/alerts", createAlertRoute);
+app.use("/api/alerts", getAlertsRoute);
 
 app.listen(SERVER_PORT, (req, res) => {
     console.log(`The backend service is running on port ${SERVER_PORT} and waiting for requests.`);

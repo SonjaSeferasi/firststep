@@ -1,0 +1,20 @@
+### ============================================
+### Create Service Alert - Should return 201
+## ============================================
+
+POST http://localhost:8081/api/alerts
+Content-Type: application/json
+
+{
+  "title": "Red Line Delay",
+  "description": "Train delayed 10 minutes due to maintenance",
+  "line": "Red Line"
+}
+
+
+## ============================================
+### Get All Service Alerts - Should return 200
+## ============================================
+
+GET http://localhost:8081/api/alerts
+Content-Type: application/json
