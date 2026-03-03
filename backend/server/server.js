@@ -14,6 +14,8 @@ const createReviewRoute = require("./routes/reviews/Reviews");
 const getAllReviewsRoute = require("./routes/reviews/getReviews");
 const createAlertRoute = require("./routes/serviceAlerts/createAlert");
 const getAlertsRoute = require("./routes/serviceAlerts/getAlert");
+const createPois = require ("./routes/pois/createPointOfInterest");
+const getPois = require("./routes/pois/getPointOfInterest");
 
 
 
@@ -35,6 +37,8 @@ app.use("/api/reviews", createReviewRoute);
 app.use("/api/reviews", getAllReviewsRoute);
 app.use("/api/alerts", createAlertRoute);
 app.use("/api/alerts", getAlertsRoute);
+app.use("/api/pois", createPois);
+app.use("/api/pois", getPois);
 
 app.listen(SERVER_PORT, (req, res) => {
     console.log(`The backend service is running on port ${SERVER_PORT} and waiting for requests.`);
