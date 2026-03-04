@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const StationReviews = require("../../models/StationReview");
+const StationReview = require("../../models/StationReview");
 
 router.get("/", async (req, res) => {
 
