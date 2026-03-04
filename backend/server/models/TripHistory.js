@@ -32,4 +32,5 @@ const tripHistorySchema = new mongoose.Schema(
   { collection: "tripHistory", timestamps: true }
 );
 
+
 module.exports = mongoose.model("tripHistory", tripHistorySchema);
