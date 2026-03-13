@@ -1,0 +1,177 @@
+.exbos-page {
+  min-height: 100vh;
+  background: #f5f7fb;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+.exbos-navbar {
+  background: white;
+  border-radius: 14px;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: bold;
+  color: #334a6b;
+}
+
+.nav-links {
+  display: flex;
+  gap: 24px;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.nav-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.signup-btn,
+.login-btn,
+.full-width-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.signup-btn {
+  background: #4f83f1;
+  color: white;
+}
+
+.login-btn {
+  background: #eef2f7;
+  color: #334155;
+}
+
+.exbos-main {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 24px;
+}
+
+.left-panel,
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.hero-box h1 {
+  font-size: 48px;
+  line-height: 1.1;
+  color: #2f4366;
+  margin-bottom: 12px;
+}
+
+.hero-box p {
+  color: #6b7280;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.card-box {
+  background: white;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.search-box input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.location-preview {
+  color: #4b5563;
+  font-size: 15px;
+}
+
+.train-card {
+  background: linear-gradient(135deg, #6da0f6, #3d74db);
+  color: white;
+}
+
+.train-card h2 {
+  font-size: 40px;
+  margin: 8px 0;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.section-header h3 {
+  font-size: 22px;
+  margin: 0;
+  color: #334155;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.mini-card {
+  background: #f8fafc;
+  border-radius: 14px;
+  padding: 24px 16px;
+  text-align: center;
+  color: #334155;
+  font-weight: 500;
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fake-map {
+  background: #dbeafe;
+  border-radius: 14px;
+  height: 360px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #334155;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.full-width-btn {
+  width: 100%;
+  margin-top: 16px;
+  background: #eef2f7;
+  color: #334155;
+  font-weight: 600;
+}
+
+@media (max-width: 992px) {
+  .exbos-main {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-box h1 {
+    font-size: 36px;
+  }
+
+  .nav-links {
+    display: none;
+  }
+}
