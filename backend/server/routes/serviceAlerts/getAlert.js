@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const ServiceAlert = require("../../models/serviceAlerts");
+const ServiceAlert = require("../../models/ServiceAlert");
 
 // GET /api/alerts
 router.get("/", async (req, res) => {
