@@ -58,9 +58,4 @@ StationReviewSchema.index(
     { unique: true }
 );
 
-
-<<<<<<< HEAD
-module.exports = mongoose.model("StationReviews", StationReviewSchema);
-=======
-module.exports = mongoose.model("StationReviews", StationReviewSchema);
->>>>>>> 1d35c573bee043edf788458b844d5fb2d8c23498
+module.exports = mongoose.model("StationReview", StationReviewSchema);
