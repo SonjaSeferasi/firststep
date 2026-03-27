@@ -7,11 +7,8 @@ module.exports = () => {
         useNewUrlParser: true,
         useUnifiedTopology: true
     }
-    try{
-        mongoose.connect(process.env.DB_URL)
-        console.log("The backend has connected to the MongoDB database.")
-    } catch(error){
-        console.log(`${error} could not connect`)
-    }
+    mongoose.connect(process.env.DB_URL)
+        .then(() => console.log("The backend has connected to the MongoDB database."))
+        .catch(err => console.error(`MongoDB connection failed: ${err.message}`));
 }
 

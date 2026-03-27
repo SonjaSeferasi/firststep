@@ -3,7 +3,7 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useNavigate } from "react-router-dom";
 import getUserInfo from "../../utilities/decodeJwt";
-
+import "../../exbosHome.css";
 
 //link to service
 //http://localhost:8096/privateUserProfile
@@ -31,7 +31,7 @@ const PrivateUserProfile = () => {
   // <span><b>{<FollowingCount username = {username}/>}</b></span>;
   if (!user) return (<div><h4>Log in to view this page.</h4></div>)
   return (
-    <div class="container">
+    <div className="container">
       <div class="col-md-12 text-center">
         <h1>{user && user.username}</h1>
         <div class="col-md-12 text-center">
