@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
-import Navbar from "../navbar";
 import "../../exbosHome.css";
 
 /* ── SVG Icons ── */
@@ -243,7 +242,6 @@ const SmartRoutePage = () => {
 
   return (
     <div className="eb-page">
-      <Navbar/>
 
       <div className="sr-page-wrap">
 
