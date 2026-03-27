@@ -1,24 +1,23 @@
 import React, { useEffect, useState } from "react";
-import getUserInfo from '../utilities/decodeJwt';
-import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
-import ReactNavbar from 'react-bootstrap/Navbar';
-
-
-// Here, we display our Navbar
+import { Link, useLocation } from "react-router-dom";
+import getUserInfo from "../utilities/decodeJwt";
+import "../exbosHome.css";
+ 
 export default function Navbar() {
-  // We are pulling in the user's info but not using it for now.
-  // Warning disabled: 
-  // eslint-disable-next-line
-  const [user, setUser] = useState({})
-
+  const [user, setUser] = useState(null);
+  const location = useLocation();
+ 
   useEffect(() => {
-  setUser(getUserInfo())
-  }, [])
-  
-  // if (!user) return null   - for now, let's show the bar even not logged in.
-  // we have an issue with getUserInfo() returning null after a few minutes
-  // it seems.
+    setUser(getUserInfo());
+  }, []);
+ 
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.href = "/";
+  };
+ 
+  const on = (path) => location.pathname === path ? "eb-on" : "";
+ 
   return (
     <ReactNavbar bg="dark" variant="dark">
     <Container>
@@ -26,7 +25,6 @@ export default function Navbar() {
         <Nav.Link href="/">Start</Nav.Link>
         <Nav.Link href="/home">Home</Nav.Link>
         <Nav.Link href="/privateUserProfile">Profile</Nav.Link>
-        <Link to="/alerts">Alerts</Link>
       </Nav>
     </Container>
   </ReactNavbar>

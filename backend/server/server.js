@@ -14,8 +14,10 @@ const createReviewRoute = require("./routes/reviews/Reviews");
 const getAllReviewsRoute = require("./routes/reviews/getReviews");
 const createAlertRoute = require("./routes/serviceAlerts/createAlert");
 const getAlertsRoute = require("./routes/serviceAlerts/getAlert");
-
-
+const createPois = require ("./routes/pois/createPointOfInterest");
+const getPois = require("./routes/pois/getPointOfInterest");
+const smartRoute = require("./routes/smartRoute/getSmartRoute");
+const { loadStops } = require("./data/mbtaStops");
 
 require('dotenv').config();
 const SERVER_PORT = 8081
@@ -35,7 +37,17 @@ app.use("/api/reviews", createReviewRoute);
 app.use("/api/reviews", getAllReviewsRoute);
 app.use("/api/alerts", createAlertRoute);
 app.use("/api/alerts", getAlertsRoute);
+app.use("/api/pois", createPois);
+app.use("/api/pois", getPois);
+app.use("/api/smart-route", smartRoute);
 
-app.listen(SERVER_PORT, (req, res) => {
+// Start server immediately so it's always reachable.
+// MBTA stop data loads in the background — the route handler
+// returns a 503 if a request arrives before loading finishes.
+app.listen(SERVER_PORT, () => {
     console.log(`The backend service is running on port ${SERVER_PORT} and waiting for requests.`);
-})
+});
+
+loadStops(process.env.MBTA_API_KEY).catch(err => {
+    console.error("[MBTA] loadStops failed:", err.message);
+});
