@@ -73,14 +73,25 @@ const AlertPage = () => {
     setLoading(true);
     setError("");
     try {
-      const { data } = await axios.get("http://localhost:8081/api/alerts");
-      setAlerts(data);
-    } catch (err) {
-      setError(
-        !err.response
-          ? "Cannot reach the backend server. Make sure it is running on port 8081."
-          : err.response.data?.message || `Server error (${err.response.status})`
-      );
+      const [manualRes, mbtaRes] = await Promise.allSettled([
+        axios.get("http://localhost:8081/api/alerts"),
+        axios.get("http://localhost:8081/api/mbta-alerts"),
+      ]);
+
+      const manual = manualRes.status === "fulfilled"
+        ? manualRes.value.data.map(a => ({ ...a, source: "manual" }))
+        : [];
+
+      const mbta = mbtaRes.status === "fulfilled"
+        ? mbtaRes.value.data.map(a => ({ ...a, source: "mbta" }))
+        : [];
+
+      if (manualRes.status === "rejected" && mbtaRes.status === "rejected") {
+        setError("Cannot reach the backend server. Make sure it is running on port 8081.");
+      }
+
+      // Manual alerts first, then live MBTA alerts
+      setAlerts([...manual, ...mbta]);
     } finally {
       setLoading(false);
     }
@@ -213,34 +224,49 @@ const AlertPage = () => {
                     boxShadow: "var(--eb-shadow)",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
                     <span className="sr-line-badge" style={{ background: lineColor }}>
                       {alert.line} Line
                     </span>
+                    {alert.source === "mbta" ? (
+                      <span style={{
+                        fontSize: 11, fontWeight: 700, padding: "2px 8px",
+                        borderRadius: 20, background: "#EFF6FF", color: "#2563EB",
+                        border: "1px solid #BFDBFE", letterSpacing: "0.03em",
+                      }}>LIVE · MBTA</span>
+                    ) : (
+                      <span style={{
+                        fontSize: 11, fontWeight: 700, padding: "2px 8px",
+                        borderRadius: 20, background: "#F0FDF4", color: "#16A34A",
+                        border: "1px solid #BBF7D0", letterSpacing: "0.03em",
+                      }}>MANUAL</span>
+                    )}
                     <span style={{ fontSize: 12, color: "var(--eb-muted)" }}>
                       {formatDate(alert.createdAt)}
                     </span>
-                    <button
-                      onClick={() => handleDelete(alert._id)}
-                      disabled={deletingId === alert._id}
-                      title="Delete alert"
-                      style={{
-                        marginLeft: "auto",
-                        background: "none",
-                        border: "1px solid #FECACA",
-                        borderRadius: 6,
-                        padding: "4px 8px",
-                        cursor: "pointer",
-                        color: "#EF4444",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 4,
-                        fontSize: 12,
-                        opacity: deletingId === alert._id ? 0.5 : 1,
-                      }}
-                    >
-                      <IcoTrash /> {deletingId === alert._id ? "Deleting…" : "Delete"}
-                    </button>
+                    {alert.source === "manual" && (
+                      <button
+                        onClick={() => handleDelete(alert._id)}
+                        disabled={deletingId === alert._id}
+                        title="Delete alert"
+                        style={{
+                          marginLeft: "auto",
+                          background: "none",
+                          border: "1px solid #FECACA",
+                          borderRadius: 6,
+                          padding: "4px 8px",
+                          cursor: "pointer",
+                          color: "#EF4444",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 4,
+                          fontSize: 12,
+                          opacity: deletingId === alert._id ? 0.5 : 1,
+                        }}
+                      >
+                        <IcoTrash /> {deletingId === alert._id ? "Deleting…" : "Delete"}
+                      </button>
+                    )}
                   </div>
                   <div style={{ fontWeight: 700, fontSize: 15, color: "var(--eb-text)", marginBottom: 6 }}>
                     {alert.title}
@@ -248,11 +274,16 @@ const AlertPage = () => {
                   <div style={{ fontSize: 14, color: "var(--eb-muted)", lineHeight: 1.6 }}>
                     {alert.description}
                   </div>
-                  {LINE_ROUTES[alert.line] && (
-                    <div style={{ marginTop: 10, fontSize: 12, color: "var(--eb-muted)" }}>
-                      Affected route: {LINE_ROUTES[alert.line]}
-                    </div>
-                  )}
+                  <div style={{ marginTop: 10, fontSize: 12, color: "var(--eb-muted)", display: "flex", gap: 16, flexWrap: "wrap" }}>
+                    {LINE_ROUTES[alert.line] && (
+                      <span>Affected route: {LINE_ROUTES[alert.line]}</span>
+                    )}
+                    {alert.effect && alert.effect !== "UNKNOWN_EFFECT" && (
+                      <span style={{ fontWeight: 600, textTransform: "capitalize" }}>
+                        Effect: {alert.effect.replace(/_/g, " ").toLowerCase()}
+                      </span>
+                    )}
+                  </div>
                 </div>
               );
             })}
