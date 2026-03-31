@@ -9,12 +9,7 @@ export default function Navbar() {
 
   useEffect(() => {
     setUser(getUserInfo());
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.clear();
-    window.location.href = "/";
-  };
+  }, [location]);
 
   const on = (path) => location.pathname === path ? "eb-on" : "";
 
@@ -34,11 +29,6 @@ export default function Navbar() {
         <li><Link to="/smart-route"        className={on("/smart-route")}>Smart Route</Link></li>
         <li><Link to="/favorites"          className={on("/favorites")}>Favorites</Link></li>
         <li><Link to="/triphistory"        className={on("/triphistory")}>Trip History</Link></li>
-        {user && (
-          <li>
-            <Link to="/privateUserProfile" className={on("/privateUserProfile")}>Profile</Link>
-          </li>
-        )}
       </ul>
 
       {/* ── Right Actions ── */}
@@ -57,7 +47,18 @@ export default function Navbar() {
         </Link>
 
         {user ? (
-          <button className="eb-logout" onClick={handleLogout}>Log Out</button>
+          <Link to="/privateUserProfile" style={{ textDecoration: "none" }}>
+            <div style={{
+              width: 34, height: 34, borderRadius: "50%",
+              background: "var(--eb-blue)", color: "white",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontWeight: 700, fontSize: 13, cursor: "pointer",
+              border: location.pathname === "/privateUserProfile" ? "2px solid #003DA5" : "2px solid transparent",
+              outline: location.pathname === "/privateUserProfile" ? "2px solid #93C5FD" : "none",
+            }}>
+              {user.username ? user.username.slice(0, 2).toUpperCase() : "??"}
+            </div>
+          </Link>
         ) : (
           <>
             <Link to="/signup" style={{ textDecoration: "none" }}>
