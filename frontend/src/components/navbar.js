@@ -29,6 +29,7 @@ export default function Navbar() {
         <li><Link to="/smart-route"        className={on("/smart-route")}>Smart Route</Link></li>
         <li><Link to="/favorites"          className={on("/favorites")}>Favorites</Link></li>
         <li><Link to="/triphistory"        className={on("/triphistory")}>Trip History</Link></li>
+        <li><Link to="/reviews"            className={on("/reviews")}>Reviews</Link></li>
       </ul>
 
       {/* ── Right Actions ── */}
