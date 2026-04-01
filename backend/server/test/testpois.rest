@@ -14,3 +14,67 @@ Content-Type: application/json
 ###3
 GET http://localhost:8081/api/pois
 Content-Type: application/json
+
+### Test 1 - Valid point of interest creation
+POST http://localhost:8081/api/pois
+Content-Type: application/json
+
+{
+  "stopId": "place-dwnxg",
+  "stopName": "Downtown Crossing",
+  "name": "Boston Common",
+  "category": "park",
+  "distanceMeters": 250,
+  "isOpenNow": true
+}
+
+### Test 2 - Retrieve all points of interest
+GET http://localhost:8081/api/pois
+
+### Test 3 - Missing required fields
+POST http://localhost:8081/api/pois
+Content-Type: application/json
+
+{
+  "stopId": "place-dwnxg",
+  "stopName": "Downtown Crossing"
+}
+
+### Test 4 - Negative distance value
+POST http://localhost:8081/api/pois
+Content-Type: application/json
+
+{
+  "stopId": "place-dwnxg",
+  "stopName": "Downtown Crossing",
+  "name": "Boston Common",
+  "category": "park",
+  "distanceMeters": -50,
+  "isOpenNow": true
+}
+
+### Test 5 - Valid point of interest with optional isOpenNow
+POST http://localhost:8081/api/pois
+Content-Type: application/json
+
+{
+  "stopId": "place-pktrm",
+  "stopName": "Park Street",
+  "name": "Freedom Trail",
+  "category": "landmark",
+  "distanceMeters": 180
+}
+
+### Test 6 - Stop selected with no matching attractions
+POST http://localhost:8081/api/pois
+Content-Type: application/json
+
+{
+  "stopId": "place-haecl",
+  "stopName": "Haymarket",
+  "name": "Quincy Market",
+  "category": "shopping",
+  "distanceMeters": 300,
+  "isOpenNow": true
+}
+
