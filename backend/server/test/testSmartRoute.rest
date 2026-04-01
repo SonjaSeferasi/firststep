@@ -1,0 +1,106 @@
+###
+# TEST 1: Valid destination by landmark name (no origin = default downtown Boston)
+# Expected: 200 OK with at least one route
+POST http://localhost:8081/api/smart-route
+Content-Type: application/json
+
+{
+  "destination": "Harvard"
+}
+
+###
+# TEST 2: Valid destination with a typed origin location
+# Expected: 200 OK — route from South Station area to Fenway Park
+POST http://localhost:8081/api/smart-route
+Content-Type: application/json
+
+{
+  "destination": "Fenway Park",
+  "originText": "South Station"
+}
+
+###
+# TEST 3: Valid destination using GPS coordinates (near Park Street)
+# Expected: 200 OK — GPS mode, route from Park Street area to Logan Airport
+POST http://localhost:8081/api/smart-route
+Content-Type: application/json
+
+{
+  "destination": "Logan Airport",
+  "originLat": 42.3563,
+  "originLng": -71.0624
+}
+
+###
+# TEST 4: Route requiring a transfer (Red Line → Green Line)
+# Expected: 200 OK — route with at least 1 transfer segment
+POST http://localhost:8081/api/smart-route
+Content-Type: application/json
+
+{
+  "destination": "Museum of Fine Arts",
+  "originText": "Harvard"
+}
+
+###
+# TEST 5: Origin and destination are the same stop
+# Expected: 200 OK — message saying "You are already near..." and routes: []
+POST http://localhost:8081/api/smart-route
+Content-Type: application/json
+
+{
+  "destination": "Park Street",
+  "originText": "Boston Common"
+}
+
+###
+# TEST 6: Missing destination field
+# Expected: 400 Bad Request — "destination is required"
+POST http://localhost:8081/api/smart-route
+Content-Type: application/json
+
+{
+  "originText": "Harvard"
+}
+
+###
+# TEST 7: Unrecognized destination text
+# Expected: 404 Not Found — "Could not find an MBTA stop near..."
+POST http://localhost:8081/api/smart-route
+Content-Type: application/json
+
+{
+  "destination": "zzz_not_a_real_place_xyz"
+}
+
+###
+# TEST 8: Unrecognized origin text
+# Expected: 404 Not Found — "Could not find an MBTA stop near..."
+POST http://localhost:8081/api/smart-route
+Content-Type: application/json
+
+{
+  "destination": "Harvard",
+  "originText": "zzz_not_a_real_place_xyz"
+}
+
+###
+# TEST 9: Popular landmark — New England Aquarium (Blue Line)
+# Expected: 200 OK — route ending at Aquarium stop
+POST http://localhost:8081/api/smart-route
+Content-Type: application/json
+
+{
+  "destination": "New England Aquarium",
+  "originText": "Alewife"
+}
+
+###
+# TEST 10: Empty destination string
+# Expected: 400 Bad Request — "destination is required"
+POST http://localhost:8081/api/smart-route
+Content-Type: application/json
+
+{
+  "destination": "   "
+}
