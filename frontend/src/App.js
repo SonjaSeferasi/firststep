@@ -12,9 +12,11 @@ import Signup from "./components/pages/registerPage";
 import PrivateUserProfile from "./components/pages/privateUserProfilePage";
 import AlertPage from "./components/pages/alertPage";
 import SmartRoutePage from "./components/pages/smartRoutePage";
+import PointOfInterestPage from "./components/pages/pointofinterestpage";
 import { createContext, useState, useEffect } from "react";
 import getUserInfo from "./utilities/decodeJwt";
 import ReviewPage from "./components/pages/reviewPage";
+import TripHistoryPage from "./components/pages/tripHistoryPage";
 
 export const UserContext = createContext();
 
@@ -37,7 +39,9 @@ const App = () => {
           <Route path="/privateUserProfile" element={<PrivateUserProfile />} />
           <Route path="/alerts" element={<AlertPage />} />
           <Route path="/smart-route" element={<SmartRoutePage />} />
+          <Route path="/explore" element={<PointOfInterestPage />} />
           <Route path="/reviews" element={<ReviewPage />} />
+          <Route path="/trip-history" element={<TripHistoryPage />} />
         </Routes>
       </UserContext.Provider>
     </>

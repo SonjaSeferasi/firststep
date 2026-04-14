@@ -1,0 +1,91 @@
+###
+# TEST 1: Get user by valid ID
+# Expected: 200 OK — returns user object with username and email
+GET http://localhost:8081/user/getUserById
+Content-Type: application/json
+
+{
+  "userId": "6973b376a7c954f8d009db13"
+}
+
+###
+# TEST 2: Get user by non-existent ID
+# Expected: 404 Not Found — "userId does not exist."
+GET http://localhost:8081/user/getUserById
+Content-Type: application/json
+
+{
+  "userId": "000000000000000000000000"
+}
+
+###
+# TEST 3: Get user with missing userId field
+# Expected: 404 Not Found — userId is undefined so user will be null
+GET http://localhost:8081/user/getUserById
+Content-Type: application/json
+
+{}
+
+###
+# TEST 4: Edit user — valid update (new username, email, password)
+# Expected: 200 OK — returns new accessToken in body and Authorization header
+POST http://localhost:8081/user/editUser
+Content-Type: application/json
+
+{
+  "userId": "6973b376a7c954f8d009db13",
+  "username": "james_boston",
+  "email": "james.boston@gmail.com",
+  "password": "James@Boston24"
+}
+
+###
+# TEST 5: Edit user — username already taken by a different user
+# Expected: 409 Conflict — "Username is taken, pick another"
+POST http://localhost:8081/user/editUser
+Content-Type: application/json
+
+{
+  "userId": "69cc0fd86718737a9cb6c21a",
+  "username": "james_boston",
+  "email": "lily.chen@gmail.com",
+  "password": "Lily@Boston24"
+}
+
+###
+# TEST 6: Edit user — missing required field (no password)
+# Expected: 400 Bad Request — validation error message
+POST http://localhost:8081/user/editUser
+Content-Type: application/json
+
+{
+  "userId": "6973b376a7c954f8d009db13",
+  "username": "james_boston",
+  "email": "james.boston@gmail.com"
+}
+
+###
+# TEST 7: Edit user — invalid email format
+# Expected: 400 Bad Request — validation error message
+POST http://localhost:8081/user/editUser
+Content-Type: application/json
+
+{
+  "userId": "6973b376a7c954f8d009db13",
+  "username": "james_boston",
+  "email": "james.bostonATgmail.com",
+  "password": "James@Boston24"
+}
+
+###
+# TEST 8: Edit user — password too short
+# Expected: 400 Bad Request — validation error message
+POST http://localhost:8081/user/editUser
+Content-Type: application/json
+
+{
+  "userId": "6973b376a7c954f8d009db13",
+  "username": "james_boston",
+  "email": "james.boston@gmail.com",
+  "password": "abc"
+}
