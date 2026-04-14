@@ -5,11 +5,29 @@ import "../exbosHome.css";
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
+  const [notifCount, setNotifCount] = useState(0);
   const location = useLocation();
 
   useEffect(() => {
     setUser(getUserInfo());
   }, [location]);
+
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const [manualRes, mbtaRes] = await Promise.allSettled([
+          fetch("http://localhost:8081/api/alerts").then(r => r.json()),
+          fetch("http://localhost:8081/api/mbta-alerts").then(r => r.json()),
+        ]);
+        const manual = manualRes.status === "fulfilled" && Array.isArray(manualRes.value) ? manualRes.value.length : 0;
+        const mbta   = mbtaRes.status   === "fulfilled" && Array.isArray(mbtaRes.value)   ? mbtaRes.value.length   : 0;
+        setNotifCount(manual + mbta);
+      } catch {
+        setNotifCount(0);
+      }
+    };
+    fetchCount();
+  }, []);
 
   const on = (path) => location.pathname === path ? "eb-on" : "";
 
@@ -43,7 +61,7 @@ export default function Navbar() {
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
               <path d="M13.73 21a2 2 0 0 1-3.46 0" />
             </svg>
-            <span className="eb-notif-dot">5</span>
+            {notifCount > 0 && <span className="eb-notif-dot">{notifCount}</span>}
           </button>
         </Link>
 

@@ -150,14 +150,47 @@ const AlertPage = () => {
             <h1 className="sr-page-title">Service Alerts</h1>
             <p className="sr-page-sub">Real-time MBTA service disruptions and advisories.</p>
           </div>
-          <div style={{ display: "flex", gap: 8, marginLeft: "auto" }}>
-            <button onClick={fetchAlerts} className="sr-gps-btn" disabled={loading} title="Refresh">
+          <div style={{ display: "flex", gap: 10, marginLeft: "auto" }}>
+            <button
+              onClick={fetchAlerts}
+              disabled={loading}
+              title="Refresh alerts"
+              style={{
+                display: "flex", alignItems: "center", gap: 6,
+                padding: "9px 16px",
+                background: "white",
+                border: "1.5px solid var(--eb-border)",
+                borderRadius: 8,
+                fontSize: 13, fontWeight: 600,
+                fontFamily: "var(--eb-font)",
+                color: "var(--eb-text)",
+                cursor: loading ? "default" : "pointer",
+                opacity: loading ? 0.6 : 1,
+                transition: "border-color 0.15s, box-shadow 0.15s",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+              }}
+              onMouseEnter={e => { if (!loading) e.currentTarget.style.borderColor = "var(--eb-blue)"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--eb-border)"; }}
+            >
               <IcoRefresh /> Refresh
             </button>
             <button
               onClick={() => { setShowModal(true); setFormError(""); setForm(EMPTY_FORM); }}
-              className="sr-find-btn"
-              style={{ padding: "8px 16px", fontSize: 13 }}
+              style={{
+                display: "flex", alignItems: "center", gap: 6,
+                padding: "9px 18px",
+                background: "var(--eb-blue)",
+                border: "none",
+                borderRadius: 8,
+                fontSize: 13, fontWeight: 700,
+                fontFamily: "var(--eb-font)",
+                color: "white",
+                cursor: "pointer",
+                boxShadow: "0 2px 8px rgba(0,61,165,0.25)",
+                transition: "background 0.15s, transform 0.1s, box-shadow 0.15s",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = "#002d7a"; e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,61,165,0.35)"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "var(--eb-blue)"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,61,165,0.25)"; }}
             >
               <IcoPlus /> New Alert
             </button>
