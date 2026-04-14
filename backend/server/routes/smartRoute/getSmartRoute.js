@@ -158,7 +158,7 @@ function findRoutes(originId, destId, adj) {
   return routes;
 }
 
-// Format raw routes into display-ready objects 
+// ── Format raw routes into display-ready objects 
 function formatRoutes(routes, originId, destId, originDistanceMeters) {
   if (!routes.length) return [];
 
