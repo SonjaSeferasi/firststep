@@ -4,11 +4,12 @@ const StationReview = require("../../models/StationReview");
 
 router.get("/", async (req, res) => {
   try {
-    const { sort, rating } = req.query;
+    const { sort, rating, targetId } = req.query;
 
     const query = {};
     if (rating) query.rating = Number(rating);
-
+    if (targetId) query.targetId = targetId;
+    
     const sortOption = sort === "highest" ? { rating: -1 } : { createdAt: -1 };
 
     // FIX: was StationReviews (undefined), correct variable is StationReview

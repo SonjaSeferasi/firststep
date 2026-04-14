@@ -12,6 +12,7 @@ var SUBWAY_LINES = [
 function ReviewPage() {
   const navigate = useNavigate();
   const user = getUserInfo();
+  const userId = user?._id || user?.id;
 
   const [allStations, setAllStations] = useState([]);
   const [lineStations, setLineStations] = useState({});
@@ -26,10 +27,14 @@ function ReviewPage() {
   const [reviews, setReviews] = useState([]);
   const [sort, setSort] = useState("newest");
   const [filterRating, setFilterRating] = useState("");
+  // Filter reviews by station — separate from the form's selected station
+  const [filterStationId, setFilterStationId] = useState("");
+  const [filterStationSearch, setFilterStationSearch] = useState("");
+  const [showFilterSuggestions, setShowFilterSuggestions] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  // Load ALL stations once (search mode)
+  // Load ALL stations once (used for both search modes)
   useEffect(function() {
     fetch("https://api-v3.mbta.com/stops?filter[location_type]=1")
       .then(function(res) { return res.json(); })
@@ -64,9 +69,17 @@ function ReviewPage() {
       .catch(function(err) { console.error("Error loading line stations", err); });
   }, [selectedLine]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Suggestions for the review form station picker
   var suggestions = stationSearch.length > 0
     ? allStations.filter(function(s) {
         return s.name.toLowerCase().indexOf(stationSearch.toLowerCase()) !== -1;
+      }).slice(0, 8)
+    : [];
+
+  // Suggestions for the filter-by-station search box
+  var filterSuggestions = filterStationSearch.length > 0
+    ? allStations.filter(function(s) {
+        return s.name.toLowerCase().indexOf(filterStationSearch.toLowerCase()) !== -1;
       }).slice(0, 8)
     : [];
 
@@ -75,6 +88,17 @@ function ReviewPage() {
     setSelectedStationName(station.name);
     setStationSearch(station.name);
     setShowSuggestions(false);
+  };
+
+  var handleSelectFilterStation = function(station) {
+    setFilterStationId(station.id);
+    setFilterStationSearch(station.name);
+    setShowFilterSuggestions(false);
+  };
+
+  var handleClearFilterStation = function() {
+    setFilterStationId("");
+    setFilterStationSearch("");
   };
 
   var handleLineChange = function(e) {
@@ -100,17 +124,22 @@ function ReviewPage() {
     setShowSuggestions(false);
   };
 
-  // Load reviews from backend
-  var loadReviews = function() {
-    var url = "/api/reviews?sort=" + sort;
+  // Load reviews — respects sort, rating, and station filters
+  var loadReviews = function(overrideStationId) {
+    var stationId = overrideStationId !== undefined ? overrideStationId : filterStationId;
+    var url = "http://localhost:8081/api/reviews?sort=" + sort;
     if (filterRating) url += "&rating=" + filterRating;
+    if (stationId) url += "&targetId=" + encodeURIComponent(stationId);
 
     fetch(url)
       .then(function(res) {
+        // Check if the response status is 200-299
+        if (!res.ok) {
+          throw new Error("Server returned status " + res.status);
+        }
         var ct = res.headers.get("content-type");
         if (!ct || ct.indexOf("application/json") === -1) {
-          console.error("Expected JSON from /reviews but got HTML — check proxy in package.json");
-          return null;
+          throw new Error("Expected JSON but got " + ct);
         }
         return res.json();
       })
@@ -119,12 +148,15 @@ function ReviewPage() {
           setReviews(data);
         }
       })
-      .catch(function(err) { console.error("Error loading reviews:", err); });
+      .catch(function(err) {
+        console.error("Error loading reviews:", err.message);
+        // Add UI feedback here, e.g., setReviewsError(true);
+      });
   };
 
   useEffect(function() {
     loadReviews();
-  }, [sort, filterRating]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [sort, filterRating, filterStationId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Submit review
   var handleSubmit = function(e) {
@@ -132,7 +164,7 @@ function ReviewPage() {
     setSubmitError("");
     setSubmitSuccess(false);
 
-    if (!user) {
+    if (!user || !userId) {
       navigate("/login");
       return;
     }
@@ -147,18 +179,21 @@ function ReviewPage() {
       return;
     }
 
+    var submittedStationId = selectedStation;
+    var submittedStationName = selectedStationName;
+
     var body = JSON.stringify({
-      userId: user._id,
+      userId: userId,
       targetType: "station",
-      targetId: selectedStation,
+      targetId: submittedStationId,
       rating: Number(rating),
       reviewText: reviewText.trim(),
       photos: [],
     });
 
-    console.log("Submitting review:", body);
+    var postUrl = "http://localhost:8081/api/reviews?sort=" + sort;
 
-    fetch("/api/reviews", {
+    fetch(postUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: body,
@@ -166,7 +201,7 @@ function ReviewPage() {
       .then(function(res) {
         var ct = res.headers.get("content-type");
         if (!ct || ct.indexOf("application/json") === -1) {
-          setSubmitError("Server error — check that your backend is running on port 8081 and proxy is set.");
+          setSubmitError("Server error — make sure your backend is running on port 8081.");
           return null;
         }
         return res.json().then(function(data) {
@@ -181,7 +216,12 @@ function ReviewPage() {
           return;
         }
 
-        // Success — reset form
+        // The backend now returns the full list of reviews for the station.
+        if (Array.isArray(result.data)) {
+          setReviews(result.data);
+        }
+
+        // Reset the form
         setReviewText("");
         setRating(5);
         setSelectedStation("");
@@ -190,7 +230,10 @@ function ReviewPage() {
         setSelectedLine("");
         setSubmitSuccess(true);
         setTimeout(function() { setSubmitSuccess(false); }, 3000);
-        loadReviews();
+
+        // Automatically filter the reviews list to show the station just reviewed
+        setFilterStationId(submittedStationId);
+        setFilterStationSearch(submittedStationName);
       })
       .catch(function(err) {
         console.error("Submit error:", err);
@@ -224,9 +267,9 @@ function ReviewPage() {
 
   return (
     <div style={{ maxWidth: "800px", margin: "auto", padding: "30px" }}>
-      <h1>MBTA Station Reviews</h1>
+      <h2>Station Reviews</h2>
 
-      {user ? (
+      {user && userId ? (
         <form onSubmit={handleSubmit}>
           <h3>Write a Review</h3>
 
@@ -370,7 +413,6 @@ function ReviewPage() {
 
           <br /><br />
 
-          {/* Error / success messages */}
           {submitError && (
             <div style={{ marginBottom: "10px", color: "#cc0000", fontWeight: 600, fontSize: "14px" }}>
               {submitError}
@@ -378,7 +420,7 @@ function ReviewPage() {
           )}
           {submitSuccess && (
             <div style={{ marginBottom: "10px", color: "#00843D", fontWeight: 600, fontSize: "14px" }}>
-              Review submitted successfully!
+              Review submitted! Showing all reviews for {filterStationSearch}.
             </div>
           )}
 
@@ -408,6 +450,78 @@ function ReviewPage() {
 
       <h3>Filter Reviews</h3>
 
+      {/* Filter by station — autocomplete search box */}
+      <div style={{ marginBottom: "12px" }}>
+        <label style={{ fontWeight: 600, marginRight: "8px" }}>Station:</label>
+        <div style={{ display: "inline-block", position: "relative", width: "260px" }}>
+          <input
+            type="text"
+            placeholder="All stations"
+            value={filterStationSearch}
+            onChange={function(e) {
+              setFilterStationSearch(e.target.value);
+              setFilterStationId("");
+              setShowFilterSuggestions(true);
+            }}
+            onFocus={function() { setShowFilterSuggestions(true); }}
+            onBlur={function() {
+              setTimeout(function() { setShowFilterSuggestions(false); }, 150);
+            }}
+            style={Object.assign({}, inputStyle, { width: "100%" })}
+            autoComplete="off"
+          />
+          {filterStationSearch && (
+            <button
+              type="button"
+              onClick={handleClearFilterStation}
+              style={{
+                position: "absolute",
+                right: "8px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                fontSize: "14px",
+                color: "#888",
+                padding: 0,
+              }}
+              title="Clear station filter"
+            >
+              ✕
+            </button>
+          )}
+          {showFilterSuggestions && filterSuggestions.length > 0 && (
+            <div style={{
+              position: "absolute",
+              top: "100%",
+              left: 0,
+              right: 0,
+              border: "1px solid #ccc",
+              borderRadius: "0 0 6px 6px",
+              background: "#fff",
+              zIndex: 10,
+              maxHeight: "200px",
+              overflowY: "auto",
+            }}>
+              {filterSuggestions.map(function(s) {
+                return (
+                  <div
+                    key={s.id}
+                    onMouseDown={function() { handleSelectFilterStation(s); }}
+                    style={{ padding: "8px 12px", cursor: "pointer", fontSize: "14px", borderBottom: "1px solid #f0f0f0" }}
+                    onMouseEnter={function(e) { e.currentTarget.style.background = "#f0f5ff"; }}
+                    onMouseLeave={function(e) { e.currentTarget.style.background = "#fff"; }}
+                  >
+                    {s.name}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
       <label>Sort: </label>
       <select value={sort} onChange={function(e) { setSort(e.target.value); }}>
         <option value="newest">Newest</option>
@@ -426,10 +540,17 @@ function ReviewPage() {
 
       <hr />
 
-      <h2>Reviews</h2>
+      <h2>
+        Reviews
+        {filterStationSearch ? " — " + filterStationSearch : ""}
+      </h2>
 
       {reviews.length === 0 && (
-        <p style={{ color: "#888" }}>No reviews yet. Be the first to write one!</p>
+        <p style={{ color: "#888" }}>
+          {filterStationSearch
+            ? "No reviews yet for " + filterStationSearch + "."
+            : "No reviews yet. Be the first to write one!"}
+        </p>
       )}
 
       {reviews.map(function(review) {

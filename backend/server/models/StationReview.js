@@ -15,7 +15,7 @@ const StationReviewSchema = new mongoose.Schema({
     },
 
     targetId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         required: true
     },
 
