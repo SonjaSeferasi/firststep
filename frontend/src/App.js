@@ -16,6 +16,7 @@ import PointOfInterestPage from "./components/pages/pointofinterestpage";
 import { createContext, useState, useEffect } from "react";
 import getUserInfo from "./utilities/decodeJwt";
 import ReviewPage from "./components/pages/reviewPage";
+import TripHistoryPage from "./components/pages/tripHistoryPage";
 
 export const UserContext = createContext();
 
@@ -40,6 +41,7 @@ const App = () => {
           <Route path="/smart-route" element={<SmartRoutePage />} />
           <Route path="/explore" element={<PointOfInterestPage />} />
           <Route path="/reviews" element={<ReviewPage />} />
+          <Route path="/trip-history" element={<TripHistoryPage />} />
         </Routes>
       </UserContext.Provider>
     </>

@@ -17,6 +17,12 @@ const IcoLogout = () => (
     <line x1="21" y1="12" x2="9" y2="12"/>
   </svg>
 );
+const IcoHistory = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <polyline points="12 8 12 12 14 14"/>
+    <path d="M3.05 11a9 9 0 1 1 .5 4M3 16v-5h5"/>
+  </svg>
+);
 const IcoRoute = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <circle cx="6" cy="19" r="3"/><circle cx="18" cy="5" r="3"/>
@@ -110,7 +116,7 @@ const PrivateUserProfile = () => {
         </div>
 
         {/* ── Quick Links ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 24 }}>
           <Link to="/smart-route" style={{ textDecoration: "none" }}>
             <div style={{
               background: "white", borderRadius: "var(--eb-radius)",
@@ -128,6 +134,27 @@ const PrivateUserProfile = () => {
               <div>
                 <div style={{ fontWeight: 700, fontSize: 14, color: "var(--eb-text)" }}>Smart Route</div>
                 <div style={{ fontSize: 12, color: "var(--eb-muted)", marginTop: 2 }}>Find your next trip</div>
+              </div>
+            </div>
+          </Link>
+
+          <Link to="/trip-history" style={{ textDecoration: "none" }}>
+            <div style={{
+              background: "white", borderRadius: "var(--eb-radius)",
+              border: "1px solid var(--eb-border)", boxShadow: "var(--eb-shadow)",
+              padding: "20px 24px", display: "flex", alignItems: "center", gap: 14,
+              cursor: "pointer",
+            }}>
+              <div style={{
+                width: 40, height: 40, borderRadius: 12,
+                background: "#F0FDF4", display: "flex", alignItems: "center",
+                justifyContent: "center", color: "#00843D", flexShrink: 0,
+              }}>
+                <IcoHistory />
+              </div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 14, color: "var(--eb-text)" }}>Trip History</div>
+                <div style={{ fontSize: 12, color: "var(--eb-muted)", marginTop: 2 }}>Your saved routes</div>
               </div>
             </div>
           </Link>

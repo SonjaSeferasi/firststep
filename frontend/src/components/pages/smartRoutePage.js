@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import "../../exbosHome.css";
+import getUserInfo from "../../utilities/decodeJwt";
 
 /* ── SVG Icons ── */
 const IcoSearch = () => (
@@ -87,8 +88,15 @@ const RouteSegment = ({ segment, isLast }) => (
   </div>
 );
 
+/* ── Distance formatter ── */
+const formatDist = (meters, useMiles) => {
+  if (!useMiles) return `${meters}m`;
+  const miles = meters * 0.000621371;
+  return miles < 0.1 ? `${Math.round(meters * 3.28084)}ft` : `${miles.toFixed(2)}mi`;
+};
+
 /* ── Single route card ── */
-const RouteCard = ({ route, isRecommended }) => (
+const RouteCard = ({ route, isRecommended, useMiles }) => (
   <div className={`sr-route-card ${isRecommended ? "sr-recommended" : "sr-alternative"}`}>
     <div className="sr-card-header">
       <div className="sr-card-title">
@@ -120,7 +128,9 @@ const RouteCard = ({ route, isRecommended }) => (
     {route.walkToStopMeters > 0 && (
       <div className="sr-walk-row">
         <IcoWalk/>
-        <span>Walk {route.walkToStopMeters}m (~{route.walkToStopMinutes} min) to <strong>{route.boardingStop}</strong></span>
+        <span>
+          Walk {formatDist(route.walkToStopMeters, useMiles)} (~{route.walkToStopMinutes} min) to <strong>{route.boardingStop}</strong>
+        </span>
       </div>
     )}
 
@@ -146,6 +156,16 @@ const SmartRoutePage = () => {
   const [loading, setLoading]             = useState(false);
   const [error, setError]                 = useState("");
   const [result, setResult]               = useState(null);
+  const [saveStatus, setSaveStatus]       = useState("idle"); // idle | saving | saved | error
+  const [useMiles, setUseMiles]           = useState(() => localStorage.getItem("distUnit") === "miles");
+
+  const toggleUnit = () => {
+    setUseMiles(prev => {
+      const next = !prev;
+      localStorage.setItem("distUnit", next ? "miles" : "meters");
+      return next;
+    });
+  };
 
   // Auto-search if destination passed via URL query param
   useEffect(() => {
@@ -199,6 +219,7 @@ const SmartRoutePage = () => {
     setLoading(true);
     setError("");
     setResult(null);
+    setSaveStatus("idle");
 
     try {
       const payload = { destination: dest.trim() };
@@ -223,6 +244,24 @@ const SmartRoutePage = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSaveTrip = async () => {
+    const user = getUserInfo();
+    if (!user) { setSaveStatus("error"); return; }
+
+    setSaveStatus("saving");
+    try {
+      await axios.post("http://localhost:8081/api/trips", {
+        userId:      user.id,
+        origin:      result.origin,
+        destination: result.destination,
+        routes:      result.routes,
+      });
+      setSaveStatus("saved");
+    } catch {
+      setSaveStatus("error");
     }
   };
 
@@ -328,6 +367,33 @@ const SmartRoutePage = () => {
               </div>
             </div>
 
+            {/* Distance unit toggle */}
+            <div style={{ marginTop: 18, paddingTop: 18, borderTop: "1px solid var(--eb-border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "var(--eb-muted)", textTransform: "uppercase", letterSpacing: ".6px" }}>
+                Distance Unit
+              </span>
+              <div style={{ display: "flex", background: "var(--eb-bg)", borderRadius: 8, border: "1px solid var(--eb-border)", overflow: "hidden" }}>
+                {["Meters", "Miles"].map(unit => {
+                  const active = unit === "Miles" ? useMiles : !useMiles;
+                  return (
+                    <button
+                      key={unit}
+                      onClick={toggleUnit}
+                      style={{
+                        padding: "5px 14px", border: "none", cursor: "pointer",
+                        fontFamily: "var(--eb-font)", fontSize: 12, fontWeight: 600,
+                        background: active ? "var(--eb-blue)" : "transparent",
+                        color: active ? "white" : "var(--eb-muted)",
+                        transition: "background .15s, color .15s",
+                      }}
+                    >
+                      {unit}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* MBTA Line Legend */}
             <div className="sr-legend">
               <div className="sr-popular-title">MBTA Lines</div>
@@ -369,6 +435,31 @@ const SmartRoutePage = () => {
             {/* Results */}
             {result && !loading && (
               <>
+                <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+                  <button
+                    onClick={handleSaveTrip}
+                    disabled={saveStatus === "saving" || saveStatus === "saved"}
+                    style={{
+                      padding: "9px 20px",
+                      borderRadius: "var(--eb-radius-sm)",
+                      border: "none",
+                      background: saveStatus === "saved"  ? "#00843D"
+                                : saveStatus === "error"  ? "#EF4444"
+                                : "var(--eb-blue)",
+                      color: "white",
+                      fontFamily: "var(--eb-font)",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: saveStatus === "saved" ? "default" : "pointer",
+                    }}
+                  >
+                    {saveStatus === "saving" ? "Saving…"
+                   : saveStatus === "saved"  ? "✓ Trip Saved"
+                   : saveStatus === "error"  ? "Save Failed — Retry"
+                   : "Save Trip"}
+                  </button>
+                </div>
+
                 <div className="sr-result-meta">
                   <div className="sr-meta-row">
                     <span className="sr-meta-label">From</span>
@@ -376,7 +467,7 @@ const SmartRoutePage = () => {
                       <LineDot color="#64748B" size={8}/>
                       {result.origin.name}
                       {result.origin.originMode === "default" && " (default: downtown Boston)"}
-                      {result.origin.originMode === "gps" && result.origin.distanceMeters > 0 && ` · ${result.origin.distanceMeters}m walk`}
+                      {result.origin.originMode === "gps" && result.origin.distanceMeters > 0 && ` · ${formatDist(result.origin.distanceMeters, useMiles)} walk`}
                     </span>
                   </div>
                   <div className="sr-meta-row">
@@ -396,7 +487,7 @@ const SmartRoutePage = () => {
                 ) : (
                   <div className="sr-routes">
                     {result.routes.map((route, i) => (
-                      <RouteCard key={i} route={route} isRecommended={i === 0}/>
+                      <RouteCard key={i} route={route} isRecommended={i === 0} useMiles={useMiles}/>
                     ))}
                   </div>
                 )}
