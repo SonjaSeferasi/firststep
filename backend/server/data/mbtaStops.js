@@ -247,8 +247,9 @@ async function loadStops(apiKey) {
 
 
   // Fallback: use hardcoded coordinates
+  
   for (const [id, data] of Object.entries(FALLBACK_STOPS)) {
-    
+
     STOPS[id] = { ...data, lines: [] };
   }
   assignLines();
