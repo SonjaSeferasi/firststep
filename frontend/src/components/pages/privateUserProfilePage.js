@@ -120,6 +120,19 @@ const PrivateUserProfile = () => {
     } catch {} finally { setSavingPic(false); }
   };
 
+  const handleDeletePic = async () => {
+    setSavingPic(true);
+    try {
+      await fetch("http://localhost:8081/user/updateProfilePic", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id, profilePic: "" }),
+      });
+      setProfilePic("");
+      setEditingPic(false);
+    } catch {} finally { setSavingPic(false); }
+  };
+
   const handleSaveProfile = async () => {
     setSavingProfile(true);
     try {
@@ -244,6 +257,17 @@ const PrivateUserProfile = () => {
                 }}>
                   {savingPic ? "Saving…" : "Save"}
                 </button>
+                {profilePic && (
+                  <button onClick={handleDeletePic} disabled={savingPic} style={{
+                    padding: "9px 14px", borderRadius: 9,
+                    background: "white", color: "#EF4444",
+                    border: "1.5px solid #EF4444",
+                    fontFamily: "var(--eb-font)", fontSize: 13, fontWeight: 600,
+                    cursor: "pointer", opacity: savingPic ? 0.7 : 1,
+                  }}>
+                    Remove photo
+                  </button>
+                )}
                 <button onClick={() => setEditingPic(false)} style={{
                   padding: "9px 14px", borderRadius: 9,
                   background: "white", color: "var(--eb-muted)",

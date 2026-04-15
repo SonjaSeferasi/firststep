@@ -943,10 +943,10 @@ const AlertPage = () => {
         {/* ── Boston Events by Season ── */}
         <BostonSeasonalEvents />
 
-        {/* ── Call Us ── */}
+        {/* ── Call MBTA ── */}
         <div style={{ marginTop: 48 }}>
           <h2 style={{ fontFamily: "var(--eb-font-h)", fontSize: 18, fontWeight: 800, color: "var(--eb-text)", marginBottom: 20 }}>
-            📞 Call Us
+            📞 Call MBTA
           </h2>
           <div style={{
             background: "#dbe9f9",
