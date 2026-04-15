@@ -1,0 +1,37 @@
+###
+# Get all stations - should return 200 OK and a list of MBTA stops
+GET http://localhost:8081/api/stations
+Content-Type: application/json
+
+###
+# Get a specific station by stopId - should return 200 OK with station details
+GET http://localhost:8081/api/stations/place-harsq
+Content-Type: application/json
+
+###
+# Create a review for a valid station - should return 201 Created
+POST http://localhost:8081/api/stations/place-harsq/reviews
+Content-Type: application/json
+
+{
+  "userId": "64f123456789123456789012",
+  "rating": 5,
+  "reviewText": "Great station with easy access to the Red Line.",
+  "photos": ["https://example.com/photo1.jpg"],
+  "verifiedRider": true
+}
+
+###
+# Create a review with missing required field - should return 400 Bad Request
+POST http://localhost:8081/api/stations/place-harsq/reviews
+Content-Type: application/json
+
+{
+  "userId": "64f123456789123456789012",
+  "rating": 4
+}
+
+###
+# Get a station that does not exist - should return 404 Not Found
+GET http://localhost:8081/api/stations/place-unknown
+Content-Type: application/json

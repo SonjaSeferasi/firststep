@@ -61,6 +61,7 @@ export default function Navbar() {
         <li><Link to="/"             className={on("/")}>Home</Link></li>
         <li><Link to="/explore"      className={on("/explore")}>Explore</Link></li>
         <li><Link to="/smart-route"  className={on("/smart-route")}>Smart Route</Link></li>
+        <li><Link to="/stations"     className={on("/stations")}>Stations</Link></li>
         <li><Link to="/trip-history" className={on("/trip-history")}>Trip History</Link></li>
         <li><Link to="/reviews"      className={on("/reviews")}>Reviews</Link></li>
       </ul>

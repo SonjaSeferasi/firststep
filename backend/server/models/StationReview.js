@@ -4,7 +4,7 @@ const StationReviewSchema = new mongoose.Schema({
 
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: "users",
         required: true
     },
 
@@ -51,11 +51,5 @@ const StationReviewSchema = new mongoose.Schema({
     }
 
 });
-
-// Prevent duplicate reviews from same user
-StationReviewSchema.index(
-    { userId: 1, targetId: 1 },
-    { unique: true }
-);
 
 module.exports = mongoose.model("StationReview", StationReviewSchema);
