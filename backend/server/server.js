@@ -18,6 +18,8 @@ const getMbtaAlertsRoute = require("./routes/serviceAlerts/getMbtaAlerts");
 const createPois = require ("./routes/pois/createPointOfInterest");
 const getPois = require("./routes/pois/getPointOfInterest");
 const smartRoute = require("./routes/smartRoute/getSmartRoute");
+const getStationsRoute = require("./routes/stations/getStations");
+const createStationReviewRoute = require("./routes/stations/postStationReview");
 const { loadStops } = require("./data/mbtaStops");
 
 require('dotenv').config();
@@ -42,6 +44,8 @@ app.use("/api/mbta-alerts", getMbtaAlertsRoute);
 app.use("/api/pois", createPois);
 app.use("/api/pois", getPois);
 app.use("/api/smart-route", smartRoute);
+app.use("/api/stations", getStationsRoute);
+app.use("/api/stations", createStationReviewRoute);
 
 // Start server immediately so it's always reachable.
 // MBTA stop data loads in the background — the route handler

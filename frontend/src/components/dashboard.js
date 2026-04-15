@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import { MapContainer, TileLayer, CircleMarker, Popup, Polyline } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "../exbosHome.css";
@@ -138,8 +140,48 @@ const IcoGps = () => (
    DASHBOARD
 ════════════════════════════ */
 const Dashboard = () => {
-  const [dest, setDest] = useState("");
- 
+  const [dest, setDest]           = useState("");
+  const [alerts, setAlerts]       = useState([]);
+  const [alertIdx, setAlertIdx]   = useState(0);
+  const [alertPulse, setAlertPulse] = useState(false);
+  const intervalRef               = useRef(null);
+  const navigate                  = useNavigate();
+
+  const fetchAlerts = async () => {
+    try {
+      const { data } = await axios.get("http://localhost:8081/api/mbta-alerts");
+      setAlerts(data);
+      setAlertPulse(true);
+      setTimeout(() => setAlertPulse(false), 600);
+    } catch {
+      // backend not reachable — keep existing alerts
+    }
+  };
+
+  useEffect(() => {
+    fetchAlerts();
+    intervalRef.current = setInterval(fetchAlerts, 20000);
+    return () => clearInterval(intervalRef.current);
+  }, []);
+
+  // Cycle through alerts one by one every 5 seconds
+  useEffect(() => {
+    if (alerts.length === 0) return;
+    const t = setInterval(() => {
+      setAlertIdx(i => (i + 1) % alerts.length);
+    }, 5000);
+    return () => clearInterval(t);
+  }, [alerts]);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (dest.trim()) {
+      navigate(`/smart-route?dest=${encodeURIComponent(dest.trim())}`);
+    }
+  };
+
+  const currentAlert = alerts[alertIdx] || null;
+
   return (
     <div className="eb-main">
  
@@ -153,7 +195,7 @@ const Dashboard = () => {
         </div>
  
         {/* Search */}
-        <div className="eb-search">
+        <form className="eb-search" onSubmit={handleSearch}>
           <div className="eb-srow">
             <span className="eb-sicon"><IcoSearch/></span>
             <input
@@ -163,35 +205,94 @@ const Dashboard = () => {
               onChange={e => setDest(e.target.value)}
             />
             <span className="eb-gpspill"><IcoGps/> GPS</span>
-            <button className="eb-gobtn"><IcoArrow/></button>
+            <button type="submit" className="eb-gobtn"><IcoArrow/></button>
           </div>
           <div className="eb-srow">
             <span className="eb-ticon"><IcoTransit/></span>
-            <input type="text" defaultValue="355 Congress St." readOnly style={{color:"#6B7280",cursor:"default"}}/>
+            <input type="text" defaultValue="My current location" readOnly style={{color:"#6B7280",cursor:"default"}}/>
             <span className="eb-sicon"><IcoBack/></span>
           </div>
-        </div>
+        </form>
  
-        {/* Next Train */}
-        <div className="eb-train">
-          <div>
-            <div className="eb-train-lbl">NEXT ARRIVAL</div>
-            <div className="eb-train-row">
-              <span className="eb-lbadge">
-                <span className="eb-ldot" style={{background:"#DA291C"}}/>
-                3 Red
-              </span>
-              <span className="eb-ttime">3 <span className="eb-tunit">mins</span></span>
+        {/* Live MBTA Alerts */}
+        <div className="eb-train" style={{ flexDirection: "column", gap: 10 }}>
+          {/* Header row */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div className="eb-train-lbl" style={{ margin: 0 }}>SERVICE ALERTS</div>
+              {alerts.length > 0 && (
+                <span style={{
+                  background: "#EF4444", color: "white",
+                  borderRadius: 20, fontSize: 11, fontWeight: 700,
+                  padding: "1px 8px", letterSpacing: "0.03em",
+                }}>
+                  {alerts.length} active
+                </span>
+              )}
             </div>
-            <div className="eb-chips">
-              <span className="eb-chip"><span className="eb-adot"/>36 Mass Ave Alerts</span>
-              <span className="eb-chip">⏱ 3 mins</span>
+            <span style={{
+              fontSize: 10, color: "rgba(255,255,255,0.5)",
+              fontWeight: 500,
+              transition: "opacity 0.3s",
+              opacity: alertPulse ? 1 : 0.5,
+            }}>
+              {alertPulse ? "↻ updated" : "auto-refresh 20s"}
+            </span>
+          </div>
+
+          {/* Alert body */}
+          {currentAlert ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{
+                  background: LINE_COLOR[currentAlert.line] || "#64748B",
+                  color: "white", borderRadius: 4, fontSize: 11,
+                  fontWeight: 700, padding: "2px 9px", whiteSpace: "nowrap",
+                }}>
+                  {currentAlert.line} Line
+                </span>
+                {currentAlert.effect && currentAlert.effect !== "UNKNOWN_EFFECT" && (
+                  <span style={{
+                    fontSize: 11, color: "rgba(255,255,255,0.65)",
+                    textTransform: "capitalize",
+                  }}>
+                    {currentAlert.effect.replace(/_/g, " ").toLowerCase()}
+                  </span>
+                )}
+                {alerts.length > 1 && (
+                  <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginLeft: "auto" }}>
+                    {alertIdx + 1} / {alerts.length}
+                  </span>
+                )}
+              </div>
+              <div style={{
+                fontSize: 13, color: "rgba(255,255,255,0.92)", fontWeight: 500,
+                lineHeight: 1.45,
+                display: "-webkit-box", WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical", overflow: "hidden",
+              }}>
+                {currentAlert.title}
+              </div>
+              <button
+                onClick={() => navigate("/alerts")}
+                style={{
+                  alignSelf: "flex-start", marginTop: 2,
+                  background: "rgba(255,255,255,0.15)",
+                  border: "1px solid rgba(255,255,255,0.25)",
+                  borderRadius: 6, color: "white",
+                  fontSize: 11, fontWeight: 600,
+                  padding: "4px 12px", cursor: "pointer",
+                  fontFamily: "var(--eb-font)",
+                }}
+              >
+                View all alerts →
+              </button>
             </div>
-          </div>
-          <div className="eb-eta">
-            <span className="eb-eta-n">3</span>
-            <span className="eb-eta-u">mins</span>
-          </div>
+          ) : (
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>
+              {alerts.length === 0 ? "Loading alerts…" : "All lines operating normally"}
+            </div>
+          )}
         </div>
  
         {/* Featured Destinations */}
@@ -281,39 +382,75 @@ const Dashboard = () => {
             <MBTAMap/>
           </div>
  
-          {/* Suggested Places */}
+          {/* MBTA Lines — Rate & Review */}
           <div className="eb-suggested">
             <div className="eb-shdr">
-              <p className="eb-suglbl">
-                Suggested Places near <strong>Downtown Crossing</strong>
-              </p>
-              <a href="#" className="eb-slink">See all ›</a>
+              <p className="eb-suglbl"><strong>Rate the MBTA Lines</strong></p>
+              <button
+                onClick={() => navigate("/reviews")}
+                style={{
+                  background: "none", border: "none", cursor: "pointer",
+                  color: "var(--eb-blue)", fontFamily: "var(--eb-font)",
+                  fontSize: 12, fontWeight: 700, padding: 0,
+                }}
+              >
+                See all reviews ›
+              </button>
             </div>
-            <div className="eb-pgrid">
-              <div className="eb-pcard">
-                <div className="eb-pimg eb-p1">🍸</div>
-                <div className="eb-pbody">
-                  <div className="eb-pname">Raines Law Room</div>
-                  <div className="eb-ptype">Cocktail Bar</div>
-                  <div className="eb-pmeta"><span className="eb-stars">★★★★</span><span>7 min</span></div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {[
+                { line: "Red",    color: "#DA291C", route: "Cambridge ↔ Braintree / Ashmont", emoji: "🔴" },
+                { line: "Green",  color: "#00843D", route: "Lechmere ↔ Heath St / Riverside",  emoji: "🟢" },
+                { line: "Orange", color: "#ED8B00", route: "Oak Grove ↔ Forest Hills",          emoji: "🟠" },
+                { line: "Blue",   color: "#003DA5", route: "Wonderland ↔ Bowdoin",              emoji: "🔵" },
+              ].map(({ line, color, route, emoji }) => (
+                <div
+                  key={line}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 12,
+                    background: "var(--eb-bg)",
+                    border: "1px solid var(--eb-border)",
+                    borderLeft: `4px solid ${color}`,
+                    borderRadius: 8,
+                    padding: "10px 14px",
+                  }}
+                >
+                  <span style={{ fontSize: 18 }}>{emoji}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontFamily: "var(--eb-font-h)", fontWeight: 700,
+                      fontSize: 13, color: "var(--eb-text)",
+                    }}>
+                      {line} Line
+                    </div>
+                    <div style={{
+                      fontSize: 11, color: "var(--eb-muted)",
+                      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                    }}>
+                      {route}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => navigate("/reviews")}
+                    style={{
+                      flexShrink: 0,
+                      padding: "5px 12px",
+                      background: color,
+                      color: "white",
+                      border: "none",
+                      borderRadius: 6,
+                      fontSize: 11,
+                      fontWeight: 700,
+                      fontFamily: "var(--eb-font)",
+                      cursor: "pointer",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Write a Review
+                  </button>
                 </div>
-              </div>
-              <div className="eb-pcard">
-                <div className="eb-pimg eb-p2">📚</div>
-                <div className="eb-pbody">
-                  <div className="eb-pname">Brattle Book Shop</div>
-                  <div className="eb-ptype">Bookstore</div>
-                  <div className="eb-pmeta"><span className="eb-stars">★★★</span><span className="eb-open">Open Now</span></div>
-                </div>
-              </div>
-              <div className="eb-pcard">
-                <div className="eb-pimg eb-p3">🌸</div>
-                <div className="eb-pbody">
-                  <div className="eb-pname">Boston Public Garden</div>
-                  <div className="eb-ptype">Park</div>
-                  <div className="eb-pmeta"><span className="eb-stars">★★★★</span><span>4.5</span></div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
  
