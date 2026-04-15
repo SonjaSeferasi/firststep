@@ -43,4 +43,39 @@ router.post('/editUser', async (req, res) =>
 
 })
 
+// GET /user/profile/:id
+router.get('/profile/:id', async (req, res) => {
+  try {
+    const user = await newUserModel.findById(req.params.id).select('username email profilePic firstName lastName');
+    if (!user) return res.status(404).send({ message: "User not found" });
+    res.json(user);
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+});
+
+// POST /user/updateProfilePic
+router.post('/updateProfilePic', async (req, res) => {
+  const { userId, profilePic } = req.body;
+  if (!userId) return res.status(400).send({ message: "userId is required" });
+  try {
+    await newUserModel.findByIdAndUpdate(userId, { profilePic });
+    res.status(200).send({ message: "Profile picture updated" });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+});
+
+// POST /user/updateProfile
+router.post('/updateProfile', async (req, res) => {
+  const { userId, firstName, lastName } = req.body;
+  if (!userId) return res.status(400).send({ message: "userId is required" });
+  try {
+    await newUserModel.findByIdAndUpdate(userId, { firstName, lastName });
+    res.status(200).send({ message: "Profile updated" });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+});
+
 module.exports = router;

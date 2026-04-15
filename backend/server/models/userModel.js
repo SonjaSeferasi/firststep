@@ -22,6 +22,9 @@ const newUserSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    profilePic: { type: String, default: "" },
+    firstName:  { type: String, default: "" },
+    lastName:   { type: String, default: "" },
   },
   { collection: "users" }
 );
