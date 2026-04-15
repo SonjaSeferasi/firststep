@@ -365,6 +365,209 @@ const BostonSeasonalEvents = () => {
   );
 };
 
+/* ── Station Information ── */
+const parseWheelchair = (v) => v === 1 ? "Accessible" : v === 2 ? "Not accessible" : "Unknown";
+
+const StationInfo = () => {
+  const [stations, setStations]     = useState([]);
+  const [search, setSearch]         = useState("");
+  const [selected, setSelected]     = useState(null);
+  const [mbtaStop, setMbtaStop]     = useState(null);
+  const [facilities, setFacilities] = useState([]);
+  const [loading, setLoading]       = useState(false);
+  const [expanded, setExpanded]     = useState(null);
+
+  useEffect(() => {
+    fetch("http://localhost:8081/api/stations")
+      .then(r => r.json())
+      .then(d => setStations(d.stations || []))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!selected) { setMbtaStop(null); setFacilities([]); return; }
+    setLoading(true);
+    setMbtaStop(null); setFacilities([]); setExpanded(null);
+    Promise.all([
+      fetch(`https://api-v3.mbta.com/stops/${selected.stopId}`).then(r => r.json()),
+      fetch(`https://api-v3.mbta.com/facilities?filter[stop]=${selected.stopId}&filter[type]=PARKING_AREA,BIKE_STORAGE,ELEVATOR,ESCALATOR`).then(r => r.json()),
+    ]).then(([stopData, facData]) => {
+      setMbtaStop(stopData?.data?.attributes || null);
+      setFacilities(facData?.data || []);
+    }).catch(() => {}).finally(() => setLoading(false));
+  }, [selected]);
+
+  const filtered = stations.filter(s => s.name.toLowerCase().includes(search.toLowerCase())).slice(0, 6);
+  const elevators    = facilities.filter(f => f.attributes?.type === "ELEVATOR");
+  const escalators   = facilities.filter(f => f.attributes?.type === "ESCALATOR");
+  const hasParking   = facilities.some(f => f.attributes?.type === "PARKING_AREA");
+  const hasBike      = facilities.some(f => f.attributes?.type === "BIKE_STORAGE");
+  const elevWorking  = elevators.filter(f => (f.attributes?.properties||[]).find(p=>p.name==="operating-status")?.value==="IN_SERVICE").length;
+  const escalWorking = escalators.filter(f => (f.attributes?.properties||[]).find(p=>p.name==="operating-status")?.value==="IN_SERVICE").length;
+
+  const InfoCard = ({ icon, title, badge, badgeOk, desc, expandKey, children }) => {
+    const isOpen = expanded === expandKey;
+    return (
+      <div
+        onClick={() => expandKey && setExpanded(isOpen ? null : expandKey)}
+        style={{
+          border: "1px solid #e5e7eb", borderRadius: 12,
+          padding: "12px 14px", cursor: expandKey ? "pointer" : "default",
+          background: "white", transition: "background 0.12s",
+        }}
+        onMouseEnter={e => { if (expandKey) e.currentTarget.style.background = "#f9fafb"; }}
+        onMouseLeave={e => { e.currentTarget.style.background = "white"; }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 16 }}>{icon}</span>
+          <span style={{ fontWeight: 700, fontSize: 13, color: "#111827", flex: 1 }}>{title}</span>
+          {badge && (
+            <span style={{
+              fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 20,
+              background: badgeOk ? "#DCFCE7" : "#FEE2E2",
+              color: badgeOk ? "#15803D" : "#B91C1C",
+              border: `1px solid ${badgeOk ? "#BBF7D0" : "#FECACA"}`,
+              whiteSpace: "nowrap",
+            }}>{badge}</span>
+          )}
+          {expandKey && (
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5"
+              style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s", flexShrink: 0 }}>
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          )}
+        </div>
+        <p style={{ fontSize: 12, color: "#6b7280", margin: "5px 0 0 24px", lineHeight: 1.5 }}>{desc}</p>
+        {isOpen && children && (
+          <div style={{ margin: "8px 0 0 24px", display: "flex", flexDirection: "column", gap: 5 }}>{children}</div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div style={{ marginTop: 48 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+        <span style={{ fontSize: 20 }}>🚉</span>
+        <div>
+          <h2 style={{ fontFamily: "var(--eb-font-h)", fontSize: 18, margin: "0 0 2px", color: "var(--eb-text)" }}>
+            Station Information
+          </h2>
+          <p style={{ fontSize: 13, color: "var(--eb-muted)", margin: 0 }}>
+            Search a station to see parking, elevators, accessibility and more.
+          </p>
+        </div>
+      </div>
+
+      <div style={{ background: "white", border: "1px solid var(--eb-border)", borderRadius: "var(--eb-radius)", boxShadow: "var(--eb-shadow)", overflow: "hidden" }}>
+        {/* Search */}
+        <div style={{ padding: "16px 18px", borderBottom: "1px solid var(--eb-border)", position: "relative" }}>
+          <input
+            type="text"
+            placeholder="Search station name…"
+            value={search}
+            onChange={e => { setSearch(e.target.value); setSelected(null); }}
+            style={{
+              width: "100%", padding: "10px 14px",
+              border: "1px solid var(--eb-border)", borderRadius: 8,
+              fontFamily: "var(--eb-font)", fontSize: 14, boxSizing: "border-box", outline: "none",
+            }}
+          />
+          {search && !selected && filtered.length > 0 && (
+            <div style={{
+              position: "absolute", top: "calc(100% - 1px)", left: 18, right: 18,
+              background: "white", border: "1px solid var(--eb-border)",
+              borderRadius: "0 0 8px 8px", boxShadow: "0 4px 16px rgba(0,0,0,0.1)", zIndex: 50,
+            }}>
+              {filtered.map(s => (
+                <div key={s.stopId}
+                  onClick={() => { setSelected(s); setSearch(s.name); }}
+                  style={{ padding: "10px 14px", cursor: "pointer", fontSize: 13, borderBottom: "1px solid #f3f4f6" }}
+                  onMouseEnter={e => { e.currentTarget.style.background = "#f9fafb"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "white"; }}
+                >
+                  <strong>{s.name}</strong>
+                  <span style={{ color: "var(--eb-muted)", marginLeft: 8, fontSize: 11 }}>{(s.lines||[]).join(", ")}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {!selected && !loading && (
+          <div style={{ padding: "28px 18px", textAlign: "center", color: "var(--eb-muted)", fontSize: 13 }}>
+            Search and select a station above to see its information.
+          </div>
+        )}
+        {loading && (
+          <div style={{ padding: "28px 18px", textAlign: "center", color: "var(--eb-muted)", fontSize: 13 }}>
+            Loading station data…
+          </div>
+        )}
+
+        {selected && mbtaStop && !loading && (
+          <div style={{ padding: "16px 18px", display: "flex", flexDirection: "column", gap: 14 }}>
+            {mbtaStop.address && (
+              <div style={{ fontSize: 13, color: "#003DA5", fontWeight: 500 }}>📍 {mbtaStop.address}</div>
+            )}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              <InfoCard icon="🅿️" title="Parking"
+                badge={hasParking ? "Available" : "Not available"} badgeOk={hasParking}
+                desc={hasParking ? "Parking available at this station." : "This station does not have parking."} />
+              <InfoCard icon="🚲" title="Bike Storage"
+                badge={hasBike ? "Available" : "Not available"} badgeOk={hasBike}
+                desc={hasBike ? "Bike storage available." : "This station does not have bike storage."} />
+              {elevators.length > 0 && (
+                <InfoCard icon="🛗" title="Elevators"
+                  badge={`${elevWorking} of ${elevators.length} working`} badgeOk={elevWorking === elevators.length}
+                  desc="View available elevators." expandKey="elevators">
+                  {elevators.map(f => {
+                    const ok = (f.attributes?.properties||[]).find(p=>p.name==="operating-status")?.value==="IN_SERVICE";
+                    return <div key={f.id} style={{ fontSize: 12, display: "flex", gap: 6 }}>
+                      <span style={{ color: ok?"#15803D":"#B91C1C" }}>●</span>
+                      <span style={{ color: "#374151" }}>{f.attributes?.short_name || f.id}</span>
+                      <span style={{ color: ok?"#15803D":"#B91C1C", fontWeight:600 }}>{ok?"In service":"Not in service"}</span>
+                    </div>;
+                  })}
+                </InfoCard>
+              )}
+              {escalators.length > 0 && (
+                <InfoCard icon="↗️" title="Escalators"
+                  badge={`${escalWorking} of ${escalators.length} working`} badgeOk={escalWorking === escalators.length}
+                  desc="View available escalators." expandKey="escalators">
+                  {escalators.map(f => {
+                    const ok = (f.attributes?.properties||[]).find(p=>p.name==="operating-status")?.value==="IN_SERVICE";
+                    return <div key={f.id} style={{ fontSize: 12, display: "flex", gap: 6 }}>
+                      <span style={{ color: ok?"#15803D":"#B91C1C" }}>●</span>
+                      <span style={{ color: "#374151" }}>{f.attributes?.short_name || f.id}</span>
+                      <span style={{ color: ok?"#15803D":"#B91C1C", fontWeight:600 }}>{ok?"In service":"Not in service"}</span>
+                    </div>;
+                  })}
+                </InfoCard>
+              )}
+              <InfoCard icon="♿" title="Accessibility"
+                desc={`Wheelchair access: ${parseWheelchair(mbtaStop.wheelchair_boarding)}`}
+                expandKey="access">
+                <span style={{ fontSize: 12, color: "#374151" }}>
+                  {mbtaStop.wheelchair_boarding === 1 ? "Accessible boarding is available."
+                    : mbtaStop.wheelchair_boarding === 2 ? "This station is not fully accessible."
+                    : "Accessibility information unavailable."}
+                </span>
+              </InfoCard>
+              <InfoCard icon="🎟️" title="Fare Options"
+                desc="Purchase fares at fare vending machines." expandKey="fare">
+                <span style={{ fontSize: 12, color: "#374151" }}>
+                  Vending machines accept cash and card. CharlieCards can be loaded here.
+                </span>
+              </InfoCard>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 /* ── Planned Work ── */
 const LINE_PILL = {
   Red:    { bg: "#DA291C", abbr: "RL" },
@@ -731,11 +934,77 @@ const AlertPage = () => {
           </div>
         )}
 
+        {/* ── Station Information ── */}
+        <StationInfo />
+
         {/* ── Planned Work ── */}
         <PlannedWork />
 
         {/* ── Boston Events by Season ── */}
         <BostonSeasonalEvents />
+
+        {/* ── Call Us ── */}
+        <div style={{ marginTop: 48 }}>
+          <h2 style={{ fontFamily: "var(--eb-font-h)", fontSize: 18, fontWeight: 800, color: "var(--eb-text)", marginBottom: 20 }}>
+            📞 Call Us
+          </h2>
+          <div style={{
+            background: "#dbe9f9",
+            borderRadius: "var(--eb-radius)",
+            padding: "28px 32px",
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 32,
+          }}>
+            {/* Column 1 */}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.07em", color: "#374151", textTransform: "uppercase", marginBottom: 10 }}>
+                Information &amp; Support
+              </div>
+              <p style={{ fontSize: 13, color: "#374151", margin: "0 0 10px", lineHeight: 1.6 }}>
+                Monday thru Friday: 6:30 AM – 8 PM
+              </p>
+              <p style={{ fontSize: 13, margin: "0 0 6px" }}>
+                <strong>Main:</strong>{" "}
+                <a href="tel:6172223200" style={{ color: "#1D4ED8", textDecoration: "none", fontWeight: 600 }}>617-222-3200</a>
+              </p>
+              <p style={{ fontSize: 13, color: "#374151", margin: 0, lineHeight: 1.6 }}>
+                711 for TTY callers; VRS for ASL callers
+              </p>
+            </div>
+
+
+            {/* Column 2 */}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.07em", color: "#374151", textTransform: "uppercase", marginBottom: 10 }}>
+                Emergency Contacts
+              </div>
+              <p style={{ fontSize: 13, color: "#374151", margin: "0 0 10px", lineHeight: 1.6 }}>
+                24 hours, 7 days a week
+              </p>
+              <p style={{ fontSize: 13, margin: "0 0 6px" }}>
+                <strong>Transit Police:</strong>{" "}
+                <a href="tel:6172221212" style={{ color: "#1D4ED8", textDecoration: "none", fontWeight: 600 }}>617-222-1212</a>
+              </p>
+              <p style={{ fontSize: 13, margin: 0 }}>
+                <strong>TTY:</strong>{" "}
+                <a href="tel:711" style={{ color: "#1D4ED8", textDecoration: "none", fontWeight: 600 }}>711</a>
+              </p>
+            </div>
+
+            {/* Column 3 */}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.07em", color: "#374151", textTransform: "uppercase", marginBottom: 10 }}>
+                Report a Railroad Crossing Gate Issue
+              </div>
+              <p style={{ fontSize: 13, color: "#374151", margin: "0 0 10px", lineHeight: 1.6 }}>
+                To report a problem or emergency with a railroad crossing, call{" "}
+                <a href="tel:8005228236" style={{ color: "#1D4ED8", textDecoration: "none", fontWeight: 600 }}>800-522-8236</a>
+              </p>
+            </div>
+          </div>
+
+        </div>
 
       </div>
 
