@@ -1,3 +1,6 @@
+require("dotenv").config();
+const SERVER_PORT = 8081
+
 const express = require("express");
 const app = express();
 const cors = require('cors')
@@ -20,12 +23,15 @@ const getBostonEventsRoute = require("./routes/serviceAlerts/getBostonEvents");
 const createPois = require ("./routes/pois/createPointOfInterest");
 const getPois = require("./routes/pois/getPointOfInterest");
 const smartRoute = require("./routes/smartRoute/getSmartRoute");
+<<<<<<< HEAD
 const getStationsRoute = require("./routes/stations/getStations");
 const createStationReviewRoute = require("./routes/stations/postStationReview");
+=======
+const getNearbyLocationsRoute = require("./routes/pois/getNearbyLocations");
+>>>>>>> origin/chrisfiguereo1/issue9
 const { loadStops } = require("./data/mbtaStops");
 
-require('dotenv').config();
-const SERVER_PORT = 8081
+
 
 dbConnection()
 app.use(cors({origin: '*'}))
@@ -48,8 +54,12 @@ app.use("/api/boston-events", getBostonEventsRoute);
 app.use("/api/pois", createPois);
 app.use("/api/pois", getPois);
 app.use("/api/smart-route", smartRoute);
+<<<<<<< HEAD
 app.use("/api/stations", getStationsRoute);
 app.use("/api/stations", createStationReviewRoute);
+=======
+app.use("/api/pois", getNearbyLocationsRoute);
+>>>>>>> origin/chrisfiguereo1/issue9
 
 // Start server immediately so it's always reachable.
 // MBTA stop data loads in the background — the route handler
