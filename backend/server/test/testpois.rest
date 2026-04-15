@@ -78,3 +78,12 @@ Content-Type: application/json
   "isOpenNow": true
 }
 
+### Test - Google Places API working
+POST http://localhost:8081/api/pois/nearby
+Content-Type: application/json
+
+{
+  "latitude": 42.352271,
+  "longitude": -71.055242
+}
+
