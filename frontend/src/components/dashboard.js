@@ -382,39 +382,75 @@ const Dashboard = () => {
             <MBTAMap/>
           </div>
  
-          {/* Suggested Places */}
+          {/* MBTA Lines — Rate & Review */}
           <div className="eb-suggested">
             <div className="eb-shdr">
-              <p className="eb-suglbl">
-                Suggested Places near <strong>Downtown Crossing</strong>
-              </p>
-              <a href="#" className="eb-slink">See all ›</a>
+              <p className="eb-suglbl"><strong>Rate the MBTA Lines</strong></p>
+              <button
+                onClick={() => navigate("/reviews")}
+                style={{
+                  background: "none", border: "none", cursor: "pointer",
+                  color: "var(--eb-blue)", fontFamily: "var(--eb-font)",
+                  fontSize: 12, fontWeight: 700, padding: 0,
+                }}
+              >
+                See all reviews ›
+              </button>
             </div>
-            <div className="eb-pgrid">
-              <div className="eb-pcard">
-                <div className="eb-pimg eb-p1">🍸</div>
-                <div className="eb-pbody">
-                  <div className="eb-pname">Raines Law Room</div>
-                  <div className="eb-ptype">Cocktail Bar</div>
-                  <div className="eb-pmeta"><span className="eb-stars">★★★★</span><span>7 min</span></div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {[
+                { line: "Red",    color: "#DA291C", route: "Cambridge ↔ Braintree / Ashmont", emoji: "🔴" },
+                { line: "Green",  color: "#00843D", route: "Lechmere ↔ Heath St / Riverside",  emoji: "🟢" },
+                { line: "Orange", color: "#ED8B00", route: "Oak Grove ↔ Forest Hills",          emoji: "🟠" },
+                { line: "Blue",   color: "#003DA5", route: "Wonderland ↔ Bowdoin",              emoji: "🔵" },
+              ].map(({ line, color, route, emoji }) => (
+                <div
+                  key={line}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 12,
+                    background: "var(--eb-bg)",
+                    border: "1px solid var(--eb-border)",
+                    borderLeft: `4px solid ${color}`,
+                    borderRadius: 8,
+                    padding: "10px 14px",
+                  }}
+                >
+                  <span style={{ fontSize: 18 }}>{emoji}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontFamily: "var(--eb-font-h)", fontWeight: 700,
+                      fontSize: 13, color: "var(--eb-text)",
+                    }}>
+                      {line} Line
+                    </div>
+                    <div style={{
+                      fontSize: 11, color: "var(--eb-muted)",
+                      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                    }}>
+                      {route}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => navigate("/reviews")}
+                    style={{
+                      flexShrink: 0,
+                      padding: "5px 12px",
+                      background: color,
+                      color: "white",
+                      border: "none",
+                      borderRadius: 6,
+                      fontSize: 11,
+                      fontWeight: 700,
+                      fontFamily: "var(--eb-font)",
+                      cursor: "pointer",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Write a Review
+                  </button>
                 </div>
-              </div>
-              <div className="eb-pcard">
-                <div className="eb-pimg eb-p2">📚</div>
-                <div className="eb-pbody">
-                  <div className="eb-pname">Brattle Book Shop</div>
-                  <div className="eb-ptype">Bookstore</div>
-                  <div className="eb-pmeta"><span className="eb-stars">★★★</span><span className="eb-open">Open Now</span></div>
-                </div>
-              </div>
-              <div className="eb-pcard">
-                <div className="eb-pimg eb-p3">🌸</div>
-                <div className="eb-pbody">
-                  <div className="eb-pname">Boston Public Garden</div>
-                  <div className="eb-ptype">Park</div>
-                  <div className="eb-pmeta"><span className="eb-stars">★★★★</span><span>4.5</span></div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
  
