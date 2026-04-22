@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p c:/csc300/firststep/backend/server/data)",
+      "Bash(mkdir -p c:/csc300/firststep/backend/server/routes/smartRoute)"
+    ]
+  }
+}

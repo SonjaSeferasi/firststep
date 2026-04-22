@@ -4,6 +4,7 @@ const z = require('zod')
 const { userLoginValidation } = require('../models/userValidator')
 const newUserModel = require('../models/userModel')
 const bcrypt = require('bcrypt')
+
 const { generateAccessToken } = require('../utilities/generateToken')
 
 

@@ -31,22 +31,22 @@ const StationsPage = () => {
   const stationSearchInputStyle = {
     width: "100%",
     padding: "10px 12px",
-    border: "1px solid #ccc",
+    border: "1px solid var(--eb-border)",
     borderRadius: "10px",
     fontSize: "15px",
     boxSizing: "border-box",
-    color: "#111827",
+    color: "var(--eb-text)",
     outline: "none",
-    background: "#fff",
+    background: "var(--eb-white)",
   };
 
   const modeButtonStyle = function(active) {
     return {
       padding: "10px 16px",
       borderRadius: "12px",
-      border: active ? "1px solid #003DA5" : "1px solid #d1d5db",
-      background: active ? "#eff6ff" : "#f8fafc",
-      color: active ? "#003DA5" : "#374151",
+      border: active ? "1px solid #003DA5" : "1px solid var(--eb-border)",
+      background: active ? "#eff6ff" : "var(--eb-bg)",
+      color: active ? "#003DA5" : "var(--eb-text)",
       fontWeight: active ? 700 : 500,
       cursor: "pointer",
       flex: 1,
@@ -153,7 +153,7 @@ const StationsPage = () => {
       <div className="eb-main" style={{ gridTemplateColumns: "1.3fr 0.9fr", gap: 26 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
           <section style={{ display: "grid", gap: 12 }}>
-            <div style={{ background: "white", borderRadius: 24, padding: 24, border: "1px solid #e5e7eb", boxShadow: "var(--eb-shadow)" }}>
+            <div style={{ background: "var(--eb-white)", borderRadius: 24, padding: 24, border: "1px solid var(--eb-border)", boxShadow: "var(--eb-shadow)" }}>
               <h1 style={{ margin: 0, fontFamily: "var(--eb-font-h)", fontSize: 34, color: "var(--eb-text)" }}>MBTA Stations</h1>
               <p style={{ margin: "12px 0 0", color: "var(--eb-muted)", maxWidth: 720, lineHeight: 1.7 }}>
                 Browse MBTA station listings, see station attributes from the MBTA API, and jump straight to reviews for each stop.
@@ -161,7 +161,7 @@ const StationsPage = () => {
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 16, alignItems: "center" }}>
-              <div style={{ background: "white", borderRadius: 18, padding: 18, border: "1px solid #e5e7eb", boxShadow: "var(--eb-shadow)" }}>
+              <div style={{ background: "var(--eb-white)", borderRadius: 18, padding: 18, border: "1px solid var(--eb-border)", boxShadow: "var(--eb-shadow)" }}>
                 <div style={{ color: "var(--eb-muted)", fontSize: 13 }}>Stations found</div>
                 <div style={{ marginTop: 8, fontSize: 28, fontWeight: 800, color: "var(--eb-text)" }}>{filteredStations.length}</div>
               </div>
@@ -172,7 +172,7 @@ const StationsPage = () => {
             </div>
           </section>
 
-          <section style={{ background: "white", borderRadius: 24, padding: 20, border: "1px solid #e5e7eb", boxShadow: "var(--eb-shadow)" }}>
+          <section style={{ background: "var(--eb-white)", borderRadius: 24, padding: 20, border: "1px solid var(--eb-border)", boxShadow: "var(--eb-shadow)" }}>
             <div style={{ marginBottom: 16, display: "flex", gap: 10, flexWrap: "wrap" }}>
               <button
                 type="button"
@@ -199,7 +199,7 @@ const StationsPage = () => {
 
             {searchMode === "text" ? (
               <div style={{ position: "relative" }}>
-                <label style={{ fontWeight: 600, display: "block", marginBottom: 8, color: "#374151" }}>
+                <label style={{ fontWeight: 600, display: "block", marginBottom: 8, color: "var(--eb-text)" }}>
                   Search stations
                 </label>
                 <input
@@ -213,7 +213,7 @@ const StationsPage = () => {
             ) : (
               <div style={{ display: "grid", gap: 14 }}>
                 <div>
-                  <label style={{ fontWeight: 600, display: "block", marginBottom: 8, color: "#374151" }}>
+                  <label style={{ fontWeight: 600, display: "block", marginBottom: 8, color: "var(--eb-text)" }}>
                     Line
                   </label>
                   <select
@@ -279,8 +279,8 @@ const StationsPage = () => {
                   width: "100%",
                   textAlign: "left",
                   borderRadius: 20,
-                  border: selectedStopId === station.stopId ? "2px solid #3b82f6" : "1px solid #e5e7eb",
-                  background: selectedStopId === station.stopId ? "#eff6ff" : "white",
+                  border: selectedStopId === station.stopId ? "2px solid #3b82f6" : "1px solid var(--eb-border)",
+                  background: selectedStopId === station.stopId ? "#eff6ff" : "var(--eb-white)",
                   padding: "18px 20px",
                   cursor: "pointer",
                 }}
@@ -294,7 +294,7 @@ const StationsPage = () => {
                       </span>
                     ))}
                   </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, max-content))", gap: 10, color: "#4b5563", fontSize: 13 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, max-content))", gap: 10, color: "var(--eb-muted)", fontSize: 13 }}>
                     <span>Stop ID: {station.stopId}</span>
                     <span>{safeArray(station.reviews).length} review{safeArray(station.reviews).length === 1 ? "" : "s"}</span>
                   </div>
@@ -321,7 +321,7 @@ const StationsPage = () => {
         </div>
 
         <aside style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          <div style={{ background: "white", borderRadius: 24, border: "1px solid #e5e7eb", boxShadow: "var(--eb-shadow)", padding: 24 }}>
+          <div style={{ background: "var(--eb-white)", borderRadius: 24, border: "1px solid var(--eb-border)", boxShadow: "var(--eb-shadow)", padding: 24 }}>
             <h2 style={{ margin: 0, fontSize: 22, color: "var(--eb-text)" }}>Station Details</h2>
             <p style={{ color: "var(--eb-muted)", marginTop: 10 }}>Selected station details come from both the app API and the MBTA stop API.</p>
 
@@ -349,7 +349,7 @@ const StationsPage = () => {
                   ))}
                 </div>
 
-                <div style={{ display: "grid", gap: 10, background: "#f8fafc", borderRadius: 18, padding: 16, border: "1px solid #e2e8f0" }}>
+                <div style={{ display: "grid", gap: 10, background: "var(--eb-bg)", borderRadius: 18, padding: 16, border: "1px solid var(--eb-border)" }}>
                   <div style={{ display: "grid", gap: 6 }}>
                     <span style={{ fontSize: 13, color: "var(--eb-muted)" }}>MBTA station summary</span>
                     <div style={{ fontSize: 15, color: "var(--eb-text)", fontWeight: 600 }}>See platform details, address and accessibility data.</div>
@@ -368,7 +368,7 @@ const StationsPage = () => {
                   )}
                 </div>
 
-                <div style={{ display: "grid", gap: 10, borderRadius: 18, border: "1px solid #e5e7eb", padding: 18 }}>
+                <div style={{ display: "grid", gap: 10, borderRadius: 18, border: "1px solid var(--eb-border)", padding: 18 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 14 }}>
                     <span style={{ color: "var(--eb-muted)", fontSize: 13 }}>Review count</span>
                     <span style={{ fontWeight: 700, color: "var(--eb-text)" }}>{safeArray(stationDetail.reviews).length}</span>
