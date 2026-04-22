@@ -1,7 +1,6 @@
-### ============================================
-### Create Service Alert - Should return 201
-## ============================================
-
+###
+# TEST 1: Create service alert — valid request
+# Expected: 201 Created — returns the created alert object
 POST http://localhost:8081/api/alerts
 Content-Type: application/json
 
@@ -11,10 +10,86 @@ Content-Type: application/json
   "line": "Red Line"
 }
 
+###
+# TEST 2: Create service alert — missing title
+# Expected: 400 Bad Request — "Missing required fields"
+POST http://localhost:8081/api/alerts
+Content-Type: application/json
 
-## ============================================
-### Get All Service Alerts - Should return 200
-## ============================================
+{
+  "description": "Train delayed due to maintenance",
+  "line": "Red Line"
+}
 
+###
+# TEST 3: Create service alert — missing description
+# Expected: 400 Bad Request — "Missing required fields"
+POST http://localhost:8081/api/alerts
+Content-Type: application/json
+
+{
+  "title": "Orange Line Delay",
+  "line": "Orange Line"
+}
+
+###
+# TEST 4: Create service alert — missing line
+# Expected: 400 Bad Request — "Missing required fields"
+POST http://localhost:8081/api/alerts
+Content-Type: application/json
+
+{
+  "title": "Blue Line Delay",
+  "description": "Signal issue at Airport station"
+}
+
+###
+# TEST 5: Create service alert — empty body
+# Expected: 400 Bad Request — "Missing required fields"
+POST http://localhost:8081/api/alerts
+Content-Type: application/json
+
+{}
+
+###
+# TEST 6: Get all service alerts
+# Expected: 200 OK — returns array of alerts sorted by newest first
 GET http://localhost:8081/api/alerts
+Content-Type: application/json
+
+###
+# TEST 7: Delete alert — valid ID
+# Expected: 200 OK — "Alert deleted"
+# NOTE: Replace <alert_id> with a real _id from TEST 1 or TEST 6 response
+DELETE http://localhost:8081/api/alerts/<alert_id>
+Content-Type: application/json
+
+###
+# TEST 8: Delete alert — non-existent ID
+# Expected: 404 Not Found — "Alert not found"
+DELETE http://localhost:8081/api/alerts/000000000000000000000000
+Content-Type: application/json
+
+###
+# TEST 9: Delete alert — malformed ID
+# Expected: 500 Internal Server Error — CastError from mongoose
+DELETE http://localhost:8081/api/alerts/not-a-valid-id
+Content-Type: application/json
+
+###
+# TEST 10: Get live MBTA alerts (Red, Orange, Blue, Green lines)
+# Expected: 200 OK — returns array of active subway alerts from MBTA API
+GET http://localhost:8081/api/mbta-alerts
+Content-Type: application/json
+
+###
+# TEST 11: Get MBTA planned work (upcoming/ongoing)
+# Expected: 200 OK — returns array of planned work items with start/end dates
+GET http://localhost:8081/api/mbta-planned
+Content-Type: application/json
+
+###
+# TEST 12: Get Boston public events
+# Expected: 200 OK — returns array of upcoming Boston.gov events
+GET http://localhost:8081/api/boston-events
 Content-Type: application/json

@@ -245,8 +245,11 @@ async function loadStops(apiKey) {
     console.warn("[MBTA] No MBTA_API_KEY set — using fallback stop data. Add one to .env for live data.");
   }
 
+
   // Fallback: use hardcoded coordinates
+  
   for (const [id, data] of Object.entries(FALLBACK_STOPS)) {
+
     STOPS[id] = { ...data, lines: [] };
   }
   assignLines();

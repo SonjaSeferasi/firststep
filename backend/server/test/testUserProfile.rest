@@ -89,3 +89,62 @@ Content-Type: application/json
   "email": "james.boston@gmail.com",
   "password": "abc"
 }
+
+###
+# TEST 9: Get profile by valid user ID
+# Expected: 200 OK — returns username, email, profilePic, firstName, lastName
+GET http://localhost:8081/user/profile/6973b376a7c954f8d009db13
+
+###
+# TEST 10: Get profile by non-existent user ID
+# Expected: 404 Not Found — "User not found"
+GET http://localhost:8081/user/profile/000000000000000000000000
+
+###
+# TEST 11: Get profile by invalid (malformed) ID
+# Expected: 500 Internal Server Error — CastError from mongoose
+GET http://localhost:8081/user/profile/not-a-valid-id
+
+###
+# TEST 12: Update profile picture — valid request
+# Expected: 200 OK — "Profile picture updated"
+POST http://localhost:8081/user/updateProfilePic
+Content-Type: application/json
+
+{
+  "userId": "6973b376a7c954f8d009db13",
+  "profilePic": "https://example.com/avatar.png"
+}
+
+###
+# TEST 13: Update profile picture — missing userId
+# Expected: 400 Bad Request — "userId is required"
+POST http://localhost:8081/user/updateProfilePic
+Content-Type: application/json
+
+{
+  "profilePic": "https://example.com/avatar.png"
+}
+
+###
+# TEST 14: Update profile (firstName, lastName) — valid request
+# Expected: 200 OK — "Profile updated"
+POST http://localhost:8081/user/updateProfile
+Content-Type: application/json
+
+{
+  "userId": "6973b376a7c954f8d009db13",
+  "firstName": "James",
+  "lastName": "Boston"
+}
+
+###
+# TEST 15: Update profile — missing userId
+# Expected: 400 Bad Request — "userId is required"
+POST http://localhost:8081/user/updateProfile
+Content-Type: application/json
+
+{
+  "firstName": "James",
+  "lastName": "Boston"
+}
