@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import axios from "axios";
+import "../../exbosHome.css";
 
 const MILES_TO_METERS = 1609.34;
 
@@ -148,8 +149,8 @@ const PointOfInterestPage = () => {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(to bottom, #f4f8fc, #edf4fb)",
-        fontFamily: "Arial, sans-serif",
+        background: "var(--eb-bg)",
+        fontFamily: "var(--eb-font)",
         padding: "30px 20px 50px",
       }}
     >
@@ -208,18 +209,18 @@ const PointOfInterestPage = () => {
         >
           <div
             style={{
-              background: "white",
+              background: "var(--eb-white)",
               borderRadius: "18px",
               padding: "18px",
-              boxShadow: "0 8px 24px rgba(0,0,0,0.07)",
-              border: "1px solid #e5e7eb",
+              boxShadow: "var(--eb-shadow)",
+              border: "1px solid var(--eb-border)",
             }}
           >
-            <h2 style={{ marginTop: 0, marginBottom: "8px", fontSize: "22px" }}>
+            <h2 style={{ marginTop: 0, marginBottom: "8px", fontSize: "22px", color: "var(--eb-text)" }}>
               MBTA Map
             </h2>
 
-            <p style={{ marginBottom: "14px", fontSize: "14px", color: "#6b7280" }}>
+            <p style={{ marginBottom: "14px", fontSize: "14px", color: "var(--eb-muted)" }}>
               Use the map as a visual guide while selecting a stop to view nearby places.
             </p>
 
@@ -231,25 +232,25 @@ const PointOfInterestPage = () => {
                 height: "260px",
                 objectFit: "cover",
                 borderRadius: "14px",
-                border: "1px solid #e5e7eb",
+                border: "1px solid var(--eb-border)",
               }}
             />
           </div>
 
           <div
             style={{
-              background: "white",
+              background: "var(--eb-white)",
               borderRadius: "18px",
               padding: "22px",
-              boxShadow: "0 8px 24px rgba(0,0,0,0.07)",
-              border: "1px solid #e5e7eb",
+              boxShadow: "var(--eb-shadow)",
+              border: "1px solid var(--eb-border)",
               maxHeight: "620px",
               overflowY: "auto",
             }}
           >
-            <h2 style={{ marginBottom: "8px", fontSize: "22px" }}>Stops</h2>
+            <h2 style={{ marginBottom: "8px", fontSize: "22px", color: "var(--eb-text)" }}>Stops</h2>
 
-            <p style={{ marginBottom: "18px", fontSize: "14px", color: "#6b7280" }}>
+            <p style={{ marginBottom: "18px", fontSize: "14px", color: "var(--eb-muted)" }}>
               Select a stop to see nearby places.
             </p>
 
@@ -271,7 +272,7 @@ const PointOfInterestPage = () => {
                       background: lineColors[line],
                     }}
                   />
-                  <h3 style={{ margin: 0, fontSize: "16px" }}>{line} Line</h3>
+                  <h3 style={{ margin: 0, fontSize: "16px", color: "var(--eb-text)" }}>{line} Line</h3>
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
@@ -285,17 +286,17 @@ const PointOfInterestPage = () => {
                         border:
                           selectedStop?.stopId === stop.stopId
                             ? "2px solid #2563eb"
-                            : "1px solid #dbe3ef",
+                            : "1px solid var(--eb-border)",
                         background:
-                          selectedStop?.stopId === stop.stopId ? "#eff6ff" : "#f9fbfd",
+                          selectedStop?.stopId === stop.stopId ? "#eff6ff" : "var(--eb-bg)",
                         cursor: "pointer",
                         textAlign: "left",
                       }}
                     >
-                      <div style={{ fontWeight: "700", fontSize: "14px" }}>
+                      <div style={{ fontWeight: "700", fontSize: "14px", color: "var(--eb-text)" }}>
                         {stop.stopName}
                       </div>
-                      <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px" }}>
+                      <div style={{ fontSize: "12px", color: "var(--eb-muted)", marginTop: "4px" }}>
                         {line} Line
                       </div>
                     </button>
@@ -308,14 +309,14 @@ const PointOfInterestPage = () => {
 
         <div
           style={{
-            background: "white",
+            background: "var(--eb-white)",
             borderRadius: "20px",
             padding: "26px",
-            boxShadow: "0 10px 28px rgba(0,0,0,0.07)",
-            border: "1px solid #e5e7eb",
+            boxShadow: "var(--eb-shadow)",
+            border: "1px solid var(--eb-border)",
           }}
         >
-          <h2 style={{ fontSize: "26px" }}>
+          <h2 style={{ fontSize: "26px", color: "var(--eb-text)" }}>
             {selectedStop ? `Places near ${selectedStop.stopName}` : "Nearby Places"}
           </h2>
 
@@ -330,9 +331,9 @@ const PointOfInterestPage = () => {
             !error &&
             pois.map((poi, index) => (
               <div key={`${poi.name}-${index}`} style={{ marginBottom: "14px" }}>
-                <h3 style={{ marginBottom: "6px" }}>{poi.name}</h3>
-                <p style={{ margin: "0 0 4px 0" }}>{poi.address}</p>
-                <p style={{ margin: 0, color: "#6b7280" }}>
+                <h3 style={{ marginBottom: "6px", color: "var(--eb-text)" }}>{poi.name}</h3>
+                <p style={{ margin: "0 0 4px 0", color: "var(--eb-text)" }}>{poi.address}</p>
+                <p style={{ margin: 0, color: "var(--eb-muted)" }}>
                   {poi.category}
                   {poi.distanceMiles !== null ? ` • ${poi.distanceMiles} miles away` : ""}
                 </p>

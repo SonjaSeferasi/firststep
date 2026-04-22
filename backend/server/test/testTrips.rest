@@ -1,16 +1,35 @@
-###
-# Create trip - should return 201 Created
+### Test 1 — Save a trip (201 Created)
 POST http://localhost:8081/api/trips
 Content-Type: application/json
 
 {
   "userId": "64f123456789123456789012",
-  "originStop": "Park Street",
-  "destinationStop": "Harvard",
-  "lineUsed": "Red",
-  "totalMinutes": 15
+  "origin": { "name": "Park Street", "stopId": "place-pktrm", "originMode": "gps" },
+  "destination": { "name": "Harvard", "stopId": "place-harsq" },
+  "routes": []
 }
-###
-# Get trips - should return 200 OK and include the created trip in the list
-GET http://localhost:8081/api/trips
+
+### Test 2 — Missing destination (400 Bad Request)
+POST http://localhost:8081/api/trips
 Content-Type: application/json
+
+{
+  "userId": "64f123456789123456789012",
+  "origin": { "name": "Park Street" }
+}
+
+### Test 3 — Invalid userId format (400 Bad Request)
+POST http://localhost:8081/api/trips
+Content-Type: application/json
+
+{
+  "userId": "notanid",
+  "origin": { "name": "Park Street" },
+  "destination": { "name": "Harvard" }
+}
+
+### Test 4 — Get trips for a user (200 OK)
+GET http://localhost:8081/api/trips?userId=64f123456789123456789012
+
+### Test 5 — Missing userId param (400 Bad Request)
+GET http://localhost:8081/api/trips
