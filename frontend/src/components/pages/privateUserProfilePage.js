@@ -4,18 +4,12 @@ import getUserInfo from "../../utilities/decodeJwt";
 import "../../exbosHome.css";
 
 const LINES = [
-  { name: "Red Line",    color: "#DA291C", bg: "#FFF1F1", route: "Cambridge ↔ Braintree / Ashmont" },
-  { name: "Green Line",  color: "#00843D", bg: "#F0FDF4", route: "Lechmere ↔ Heath St / Riverside" },
-  { name: "Orange Line", color: "#ED8B00", bg: "#FFF7ED", route: "Oak Grove ↔ Forest Hills" },
-  { name: "Blue Line",   color: "#003DA5", bg: "#EFF6FF", route: "Wonderland ↔ Bowdoin" },
+  { name: "Red Line",    color: "#DA291C", bg: "linear-gradient(135deg,#fff1f1,#ffe4e4)", route: "Alewife ↔ Braintree / Ashmont" },
+  { name: "Green Line",  color: "#00843D", bg: "linear-gradient(135deg,#f0fdf4,#dcfce7)", route: "Lechmere ↔ Heath St / Riverside" },
+  { name: "Orange Line", color: "#ED8B00", bg: "linear-gradient(135deg,#fff7ed,#ffedd5)", route: "Oak Grove ↔ Forest Hills" },
+  { name: "Blue Line",   color: "#003DA5", bg: "linear-gradient(135deg,#eff6ff,#dbeafe)", route: "Wonderland ↔ Bowdoin" },
 ];
 
-const IcoEdit = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-  </svg>
-);
 const IcoLogout = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
@@ -23,72 +17,31 @@ const IcoLogout = () => (
     <line x1="21" y1="12" x2="9" y2="12"/>
   </svg>
 );
-const IcoHistory = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <polyline points="12 8 12 12 14 14"/>
-    <path d="M3.05 11a9 9 0 1 1 .5 4M3 16v-5h5"/>
-  </svg>
-);
-const IcoRoute = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <circle cx="6" cy="19" r="3"/><circle cx="18" cy="5" r="3"/>
-    <path d="M12 19h4.5a3.5 3.5 0 0 0 0-7h-8a3.5 3.5 0 0 1 0-7H12"/>
+const IcoEdit = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
   </svg>
 );
 const IcoCamera = () => (
-  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
     <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
     <circle cx="12" cy="13" r="4"/>
   </svg>
 );
 
-const QuickCard = ({ to, icon, label, sub, iconBg, iconColor }) => {
-  const [hovered, setHovered] = useState(false);
-  return (
-    <Link to={to} style={{ textDecoration: "none" }}>
-      <div
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        style={{
-          background: "white",
-          borderRadius: 16,
-          border: hovered ? "1.5px solid var(--eb-blue)" : "1.5px solid var(--eb-border)",
-          boxShadow: hovered ? "0 8px 24px rgba(0,61,165,0.12)" : "0 2px 8px rgba(0,0,0,0.05)",
-          padding: "20px",
-          display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 12,
-          cursor: "pointer",
-          transition: "border-color 0.2s, box-shadow 0.2s, transform 0.15s",
-          transform: hovered ? "translateY(-2px)" : "none",
-        }}
-      >
-        <div style={{
-          width: 44, height: 44, borderRadius: 12,
-          background: iconBg, display: "flex", alignItems: "center",
-          justifyContent: "center", color: iconColor,
-        }}>
-          {icon}
-        </div>
-        <div>
-          <div style={{ fontWeight: 700, fontSize: 14, color: "var(--eb-text)" }}>{label}</div>
-          <div style={{ fontSize: 12, color: "var(--eb-muted)", marginTop: 2 }}>{sub}</div>
-        </div>
-      </div>
-    </Link>
-  );
-};
-
 const PrivateUserProfile = () => {
-  const [user, setUser]             = useState(null);
+  const [user, setUser]           = useState(null);
   const [profilePic, setProfilePic] = useState("");
   const [editingPic, setEditingPic] = useState(false);
-  const [picInput, setPicInput]     = useState("");
-  const [savingPic, setSavingPic]   = useState(false);
-  const [firstName, setFirstName]   = useState("");
-  const [lastName, setLastName]     = useState("");
+  const [picInput, setPicInput]   = useState("");
+  const [savingPic, setSavingPic] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName]   = useState("");
   const [editingProfile, setEditingProfile] = useState(false);
   const [profileForm, setProfileForm]       = useState({ firstName: "", lastName: "" });
   const [savingProfile, setSavingProfile]   = useState(false);
-  const [showConfirm, setConfirm]   = useState(false);
+  const [showConfirm, setConfirm] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -155,244 +108,353 @@ const PrivateUserProfile = () => {
   const displayName = firstName || lastName ? `${firstName} ${lastName}`.trim() : user.username;
 
   return (
-    <div className="eb-page" style={{ background: "#F7F9FC", minHeight: "100vh" }}>
-      <div style={{ maxWidth: 760, margin: "0 auto", padding: "32px 20px 60px" }}>
+    <div style={{ minHeight: "100vh", background: "#F0F4FA", fontFamily: "var(--eb-font)" }}>
+      <div style={{ maxWidth: 680, margin: "0 auto", padding: "36px 20px 80px" }}>
 
-        {/* ── Profile Hero Card ── */}
+        {/* ── Hero Card ── */}
         <div style={{
-          borderRadius: 20, overflow: "hidden",
-          boxShadow: "0 4px 24px rgba(0,0,0,0.09)",
+          borderRadius: 24,
+          overflow: "hidden",
+          boxShadow: "0 8px 40px rgba(0,61,165,0.15)",
           marginBottom: 24,
         }}>
           {/* Banner */}
           <div style={{
-            background: "linear-gradient(135deg, #003DA5 0%, #1a56c4 40%, #0ea5e9 100%)",
-            height: 120,
+            background: "linear-gradient(135deg, #001f6b 0%, #003DA5 45%, #1a7fd4 80%, #38bdf8 100%)",
+            height: 140,
             position: "relative",
+            overflow: "hidden",
           }}>
-            {/* Log out button top-right */}
+            {/* decorative circles */}
+            <div style={{ position:"absolute", top:-40, right:-40, width:200, height:200, borderRadius:"50%", background:"rgba(255,255,255,0.06)" }}/>
+            <div style={{ position:"absolute", bottom:-60, left:-20, width:160, height:160, borderRadius:"50%", background:"rgba(255,255,255,0.04)" }}/>
+            <div style={{ position:"absolute", top:20, right:100, width:80, height:80, borderRadius:"50%", background:"rgba(255,255,255,0.05)" }}/>
+
+            {/* Log out */}
             <button
               onClick={() => setConfirm(true)}
               style={{
-                position: "absolute", top: 16, right: 16,
-                display: "flex", alignItems: "center", gap: 6,
-                padding: "7px 14px", borderRadius: 8,
-                border: "1.5px solid rgba(255,255,255,0.4)",
-                background: "rgba(255,255,255,0.15)",
-                backdropFilter: "blur(6px)",
-                color: "white", fontSize: 13, fontWeight: 600,
-                fontFamily: "var(--eb-font)", cursor: "pointer",
+                position:"absolute", top:16, right:16,
+                display:"flex", alignItems:"center", gap:6,
+                padding:"8px 16px", borderRadius:10,
+                border:"1.5px solid rgba(255,255,255,0.35)",
+                background:"rgba(255,255,255,0.12)",
+                backdropFilter:"blur(8px)",
+                color:"white", fontSize:13, fontWeight:600,
+                fontFamily:"var(--eb-font)", cursor:"pointer",
+                transition:"background 0.2s",
               }}
+              onMouseOver={e => e.currentTarget.style.background="rgba(255,255,255,0.22)"}
+              onMouseOut={e => e.currentTarget.style.background="rgba(255,255,255,0.12)"}
             >
               <IcoLogout /> Log Out
             </button>
           </div>
 
-          {/* Avatar + name */}
-          <div style={{ background: "white", padding: "0 32px 28px" }}>
-            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-              {/* Avatar */}
-              <div style={{ position: "relative", marginTop: -44 }}>
+          {/* White body */}
+          <div style={{ background:"white", padding:"0 32px 32px" }}>
+            {/* Avatar row */}
+            <div style={{ display:"flex", alignItems:"flex-end", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
+              <div style={{ position:"relative", marginTop:-52 }}>
                 <div style={{
-                  width: 88, height: 88, borderRadius: "50%",
-                  background: "linear-gradient(135deg, var(--eb-blue), #0ea5e9)",
-                  border: "4px solid white",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 30, fontWeight: 800, color: "white",
-                  fontFamily: "var(--eb-font-h)",
-                  boxShadow: "0 4px 16px rgba(0,61,165,0.25)",
-                  overflow: "hidden",
+                  width:96, height:96, borderRadius:"50%",
+                  background:"linear-gradient(135deg,#003DA5,#38bdf8)",
+                  border:"5px solid white",
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                  fontSize:32, fontWeight:800, color:"white",
+                  fontFamily:"var(--eb-font-h)",
+                  boxShadow:"0 8px 24px rgba(0,61,165,0.35)",
+                  overflow:"hidden",
                 }}>
                   {profilePic
-                    ? <img src={profilePic} alt="avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ? <img src={profilePic} alt="avatar" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
                     : initials}
                 </div>
-                {/* Camera edit button */}
                 <button
                   onClick={() => { setEditingPic(v => !v); setPicInput(profilePic); }}
-                  title="Change profile picture"
+                  title="Change photo"
                   style={{
-                    position: "absolute", bottom: 2, right: 2,
-                    width: 26, height: 26, borderRadius: "50%",
-                    background: "var(--eb-blue)", border: "2px solid white",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    cursor: "pointer", padding: 0, color: "white",
-                    boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+                    position:"absolute", bottom:3, right:3,
+                    width:28, height:28, borderRadius:"50%",
+                    background:"var(--eb-blue)", border:"2.5px solid white",
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                    cursor:"pointer", padding:0, color:"white",
+                    boxShadow:"0 2px 8px rgba(0,0,0,0.25)",
                   }}
                 >
                   <IcoCamera />
                 </button>
               </div>
 
-              {/* Name */}
-              <div style={{ paddingBottom: 4 }}>
-                <h1 style={{ fontFamily: "var(--eb-font-h)", fontSize: 24, color: "var(--eb-text)", margin: "0 0 2px" }}>
+              <div style={{ paddingBottom:6 }}>
+                <h1 style={{
+                  fontFamily:"var(--eb-font-h)", fontSize:26,
+                  color:"var(--eb-text)", margin:"0 0 3px",
+                  letterSpacing:"-0.5px",
+                }}>
                   {displayName}
                 </h1>
-                {(firstName || lastName) && (
-                  <p style={{ fontSize: 13, color: "var(--eb-muted)", margin: 0 }}>@{user.username}</p>
-                )}
+                <p style={{ fontSize:13, color:"var(--eb-muted)", margin:0 }}>
+                  @{user.username}
+                </p>
               </div>
             </div>
 
-            {/* Photo URL input */}
+            {/* Photo URL editor */}
             {editingPic && (
-              <div style={{ marginTop: 16, display: "flex", gap: 8, alignItems: "center" }}>
+              <div style={{ marginTop:20, display:"flex", gap:8, flexWrap:"wrap" }}>
                 <input
                   type="url"
                   placeholder="Paste image URL…"
                   value={picInput}
                   onChange={e => setPicInput(e.target.value)}
                   style={{
-                    flex: 1, padding: "9px 12px",
-                    border: "1.5px solid var(--eb-border)", borderRadius: 9,
-                    fontFamily: "var(--eb-font)", fontSize: 13, outline: "none",
+                    flex:1, minWidth:200, padding:"10px 14px",
+                    border:"1.5px solid var(--eb-border)", borderRadius:10,
+                    fontFamily:"var(--eb-font)", fontSize:13, outline:"none",
+                    background:"var(--eb-bg)",
                   }}
                 />
                 <button onClick={handleSavePic} disabled={savingPic} style={{
-                  padding: "9px 18px", borderRadius: 9,
-                  background: "var(--eb-blue)", color: "white", border: "none",
-                  fontFamily: "var(--eb-font)", fontSize: 13, fontWeight: 600,
-                  cursor: "pointer", opacity: savingPic ? 0.7 : 1,
+                  padding:"10px 20px", borderRadius:10,
+                  background:"var(--eb-blue)", color:"white", border:"none",
+                  fontFamily:"var(--eb-font)", fontSize:13, fontWeight:600,
+                  cursor:"pointer", opacity:savingPic?0.7:1,
+                  boxShadow:"0 2px 8px rgba(0,61,165,0.25)",
                 }}>
                   {savingPic ? "Saving…" : "Save"}
                 </button>
                 {profilePic && (
                   <button onClick={handleDeletePic} disabled={savingPic} style={{
-                    padding: "9px 14px", borderRadius: 9,
-                    background: "white", color: "#EF4444",
-                    border: "1.5px solid #EF4444",
-                    fontFamily: "var(--eb-font)", fontSize: 13, fontWeight: 600,
-                    cursor: "pointer", opacity: savingPic ? 0.7 : 1,
+                    padding:"10px 16px", borderRadius:10,
+                    background:"white", color:"#EF4444",
+                    border:"1.5px solid #EF4444",
+                    fontFamily:"var(--eb-font)", fontSize:13, fontWeight:600,
+                    cursor:"pointer",
                   }}>
-                    Remove photo
+                    Remove
                   </button>
                 )}
                 <button onClick={() => setEditingPic(false)} style={{
-                  padding: "9px 14px", borderRadius: 9,
-                  background: "white", color: "var(--eb-muted)",
-                  border: "1.5px solid var(--eb-border)",
-                  fontFamily: "var(--eb-font)", fontSize: 13, cursor: "pointer",
+                  padding:"10px 16px", borderRadius:10,
+                  background:"var(--eb-bg)", color:"var(--eb-muted)",
+                  border:"1.5px solid var(--eb-border)",
+                  fontFamily:"var(--eb-font)", fontSize:13, cursor:"pointer",
                 }}>
                   Cancel
                 </button>
               </div>
             )}
+
+            {/* Stats bar */}
+            <div style={{
+              display:"flex", gap:0,
+              marginTop:24,
+              background:"var(--eb-bg)",
+              borderRadius:14,
+              overflow:"hidden",
+              border:"1px solid var(--eb-border)",
+            }}>
+              {[
+                { value:"4",       label:"Lines" },
+                { value:"Boston",  label:"City"  },
+                { value:"Active",  label:"Status"},
+              ].map((s, i) => (
+                <div key={s.label} style={{
+                  flex:1, textAlign:"center", padding:"14px 8px",
+                  borderRight: i < 2 ? "1px solid var(--eb-border)" : "none",
+                }}>
+                  <div style={{ fontSize:17, fontWeight:800, color:"var(--eb-text)", fontFamily:"var(--eb-font-h)" }}>{s.value}</div>
+                  <div style={{ fontSize:11, color:"var(--eb-muted)", marginTop:2, fontWeight:500 }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* ── Quick Links ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
-          <QuickCard to="/smart-route" icon={<IcoRoute />} label="Smart Route"   sub="Find your next trip"   iconBg="#EFF6FF" iconColor="var(--eb-blue)" />
-          <QuickCard to="/trip-history" icon={<IcoHistory />} label="Trip History" sub="Your saved routes"    iconBg="#F0FDF4" iconColor="#00843D" />
+        {/* ── Quick Actions ── */}
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginBottom:24 }}>
+          {[
+            { to:"/smart-route",  icon:"🚇", label:"Smart Route",  sub:"Plan your next trip",  gradient:"linear-gradient(135deg,#003DA5,#1a7fd4)" },
+            { to:"/trip-history", icon:"📋", label:"Trip History", sub:"View past journeys",   gradient:"linear-gradient(135deg,#00843D,#34d399)"  },
+            { to:"/explore",      icon:"🗺️", label:"Explore",      sub:"Discover Boston",      gradient:"linear-gradient(135deg,#7c3aed,#a78bfa)"  },
+            { to:"/alerts",       icon:"🔔", label:"Alerts",       sub:"Live service updates", gradient:"linear-gradient(135deg,#ED8B00,#fbbf24)"  },
+          ].map(a => (
+            <Link key={a.label} to={a.to} style={{ textDecoration:"none" }}>
+              <div
+                style={{
+                  background:"white", borderRadius:18,
+                  border:"1.5px solid var(--eb-border)",
+                  boxShadow:"0 2px 12px rgba(0,0,0,0.06)",
+                  padding:"20px", display:"flex", alignItems:"center", gap:16,
+                  cursor:"pointer", transition:"transform 0.15s, box-shadow 0.15s",
+                }}
+                onMouseOver={e => { e.currentTarget.style.transform="translateY(-3px)"; e.currentTarget.style.boxShadow="0 8px 28px rgba(0,0,0,0.11)"; }}
+                onMouseOut={e => { e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="0 2px 12px rgba(0,0,0,0.06)"; }}
+              >
+                <div style={{
+                  width:46, height:46, borderRadius:14,
+                  background:a.gradient,
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                  fontSize:22, flexShrink:0,
+                  boxShadow:"0 4px 12px rgba(0,0,0,0.15)",
+                }}>
+                  {a.icon}
+                </div>
+                <div>
+                  <div style={{ fontWeight:700, fontSize:14, color:"var(--eb-text)" }}>{a.label}</div>
+                  <div style={{ fontSize:12, color:"var(--eb-muted)", marginTop:2 }}>{a.sub}</div>
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
 
         {/* ── Profile Settings ── */}
         <div style={{
-          background: "white", borderRadius: 16,
-          border: "1.5px solid var(--eb-border)",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-          padding: "24px 28px", marginBottom: 24,
+          background:"white", borderRadius:20,
+          border:"1.5px solid var(--eb-border)",
+          boxShadow:"0 2px 16px rgba(0,0,0,0.06)",
+          overflow:"hidden",
+          marginBottom:24,
         }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-            <div style={{ fontWeight: 700, fontSize: 15, color: "var(--eb-text)" }}>Profile Settings</div>
+          <div style={{
+            padding:"20px 28px",
+            borderBottom:"1px solid var(--eb-border)",
+            display:"flex", alignItems:"center", justifyContent:"space-between",
+            background:"linear-gradient(90deg, #fafbff, white)",
+          }}>
+            <div style={{ fontWeight:700, fontSize:15, color:"var(--eb-text)" }}>
+              Profile Settings
+            </div>
             {!editingProfile && (
               <button
                 onClick={() => { setEditingProfile(true); setProfileForm({ firstName, lastName }); }}
                 style={{
-                  display: "flex", alignItems: "center", gap: 5,
-                  padding: "6px 14px", borderRadius: 8,
-                  border: "1.5px solid var(--eb-border)", background: "white",
-                  fontFamily: "var(--eb-font)", fontSize: 13, fontWeight: 600,
-                  color: "var(--eb-text)", cursor: "pointer",
+                  display:"flex", alignItems:"center", gap:6,
+                  padding:"7px 16px", borderRadius:8,
+                  border:"1.5px solid var(--eb-border)", background:"white",
+                  fontFamily:"var(--eb-font)", fontSize:13, fontWeight:600,
+                  color:"var(--eb-text)", cursor:"pointer",
+                  transition:"border-color 0.2s, color 0.2s",
                 }}
+                onMouseOver={e => { e.currentTarget.style.borderColor="var(--eb-blue)"; e.currentTarget.style.color="var(--eb-blue)"; }}
+                onMouseOut={e => { e.currentTarget.style.borderColor="var(--eb-border)"; e.currentTarget.style.color="var(--eb-text)"; }}
               >
                 <IcoEdit /> Edit
               </button>
             )}
           </div>
 
-          {editingProfile ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "var(--eb-muted)", letterSpacing: "0.06em", marginBottom: 6 }}>FIRST NAME</div>
-                  <input type="text" placeholder="First name" value={profileForm.firstName}
-                    onChange={e => setProfileForm(f => ({ ...f, firstName: e.target.value }))}
-                    style={{ width: "100%", padding: "10px 12px", boxSizing: "border-box", border: "1.5px solid var(--eb-border)", borderRadius: 9, fontFamily: "var(--eb-font)", fontSize: 14, outline: "none" }}
-                  />
+          <div style={{ padding:"24px 28px" }}>
+            {editingProfile ? (
+              <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+                  {[
+                    { key:"firstName", label:"FIRST NAME", placeholder:"First name" },
+                    { key:"lastName",  label:"LAST NAME",  placeholder:"Last name"  },
+                  ].map(f => (
+                    <div key={f.key}>
+                      <div style={{ fontSize:11, fontWeight:700, color:"var(--eb-muted)", letterSpacing:"0.07em", marginBottom:7 }}>{f.label}</div>
+                      <input
+                        type="text"
+                        placeholder={f.placeholder}
+                        value={profileForm[f.key]}
+                        onChange={e => setProfileForm(p => ({ ...p, [f.key]: e.target.value }))}
+                        style={{
+                          width:"100%", boxSizing:"border-box",
+                          padding:"11px 14px",
+                          border:"1.5px solid var(--eb-border)", borderRadius:10,
+                          fontFamily:"var(--eb-font)", fontSize:14, outline:"none",
+                          background:"var(--eb-bg)", transition:"border-color 0.2s",
+                        }}
+                        onFocus={e => e.target.style.borderColor="var(--eb-blue)"}
+                        onBlur={e => e.target.style.borderColor="var(--eb-border)"}
+                      />
+                    </div>
+                  ))}
                 </div>
-                <div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "var(--eb-muted)", letterSpacing: "0.06em", marginBottom: 6 }}>LAST NAME</div>
-                  <input type="text" placeholder="Last name" value={profileForm.lastName}
-                    onChange={e => setProfileForm(f => ({ ...f, lastName: e.target.value }))}
-                    style={{ width: "100%", padding: "10px 12px", boxSizing: "border-box", border: "1.5px solid var(--eb-border)", borderRadius: 9, fontFamily: "var(--eb-font)", fontSize: 14, outline: "none" }}
-                  />
+                <div style={{ display:"flex", gap:10 }}>
+                  <button onClick={handleSaveProfile} disabled={savingProfile} style={{
+                    padding:"11px 24px", borderRadius:10,
+                    background:"var(--eb-blue)", color:"white", border:"none",
+                    fontFamily:"var(--eb-font)", fontSize:13, fontWeight:700,
+                    cursor:"pointer", opacity:savingProfile?0.7:1,
+                    boxShadow:"0 4px 12px rgba(0,61,165,0.3)",
+                  }}>
+                    {savingProfile ? "Saving…" : "Save changes"}
+                  </button>
+                  <button onClick={() => setEditingProfile(false)} style={{
+                    padding:"11px 18px", borderRadius:10,
+                    background:"var(--eb-bg)", color:"var(--eb-muted)",
+                    border:"1.5px solid var(--eb-border)",
+                    fontFamily:"var(--eb-font)", fontSize:13, cursor:"pointer",
+                  }}>
+                    Cancel
+                  </button>
                 </div>
               </div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button onClick={handleSaveProfile} disabled={savingProfile} style={{
-                  padding: "10px 22px", borderRadius: 9,
-                  background: "var(--eb-blue)", color: "white", border: "none",
-                  fontFamily: "var(--eb-font)", fontSize: 13, fontWeight: 700,
-                  cursor: "pointer", opacity: savingProfile ? 0.7 : 1,
-                  boxShadow: "0 2px 8px rgba(0,61,165,0.2)",
-                }}>
-                  {savingProfile ? "Saving…" : "Save changes"}
-                </button>
-                <button onClick={() => setEditingProfile(false)} style={{
-                  padding: "10px 16px", borderRadius: 9,
-                  background: "white", color: "var(--eb-muted)",
-                  border: "1.5px solid var(--eb-border)",
-                  fontFamily: "var(--eb-font)", fontSize: 13, cursor: "pointer",
-                }}>
-                  Cancel
-                </button>
+            ) : (
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20 }}>
+                {[
+                  { label:"FIRST NAME", value:firstName || "Not set", empty:!firstName },
+                  { label:"LAST NAME",  value:lastName  || "Not set", empty:!lastName  },
+                  { label:"USERNAME",   value:`@${user.username}`, empty:false },
+                  { label:"EMAIL",      value:user.email,          empty:false },
+                ].map(({ label, value, empty }) => (
+                  <div key={label}>
+                    <div style={{ fontSize:11, fontWeight:700, color:"var(--eb-muted)", letterSpacing:"0.07em", marginBottom:6 }}>
+                      {label}
+                    </div>
+                    <div style={{
+                      fontSize:14, fontWeight:empty?400:600,
+                      color:empty?"var(--eb-muted)":"var(--eb-text)",
+                    }}>
+                      {value}
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-          ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
-              {[
-                { label: "FIRST NAME", value: firstName || "Not set", muted: !firstName },
-                { label: "LAST NAME",  value: lastName  || "Not set", muted: !lastName  },
-                { label: "USERNAME",   value: `@${user.username}`,    muted: false },
-                { label: "EMAIL",      value: user.email,             muted: false },
-              ].map(({ label, value, muted }) => (
-                <div key={label}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "var(--eb-muted)", letterSpacing: "0.06em", marginBottom: 5 }}>{label}</div>
-                  <div style={{ fontSize: 14, color: muted ? "var(--eb-muted)" : "var(--eb-text)", fontWeight: muted ? 400 : 500 }}>{value}</div>
-                </div>
-              ))}
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* ── MBTA Lines ── */}
         <div style={{
-          background: "white", borderRadius: 16,
-          border: "1.5px solid var(--eb-border)",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-          padding: "24px 28px",
+          background:"white", borderRadius:20,
+          border:"1.5px solid var(--eb-border)",
+          boxShadow:"0 2px 16px rgba(0,0,0,0.06)",
+          overflow:"hidden",
         }}>
-          <div style={{ fontWeight: 700, fontSize: 15, color: "var(--eb-text)", marginBottom: 18 }}>
+          <div style={{
+            padding:"20px 28px",
+            borderBottom:"1px solid var(--eb-border)",
+            fontWeight:700, fontSize:15, color:"var(--eb-text)",
+            background:"linear-gradient(90deg, #fafbff, white)",
+          }}>
             MBTA Subway Lines
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ padding:"20px 28px", display:"flex", flexDirection:"column", gap:10 }}>
             {LINES.map(line => (
               <div key={line.name} style={{
-                display: "flex", alignItems: "center", gap: 14,
-                padding: "12px 16px", borderRadius: 12,
-                background: line.bg,
-              }}>
+                display:"flex", alignItems:"center", gap:14,
+                padding:"14px 18px", borderRadius:14,
+                background:line.bg,
+                transition:"transform 0.15s",
+                cursor:"default",
+              }}
+                onMouseOver={e => e.currentTarget.style.transform="translateX(4px)"}
+                onMouseOut={e => e.currentTarget.style.transform="translateX(0)"}
+              >
                 <div style={{
-                  width: 14, height: 14, borderRadius: "50%",
-                  background: line.color, flexShrink: 0,
-                  boxShadow: `0 0 0 3px ${line.color}30`,
+                  width:16, height:16, borderRadius:"50%",
+                  background:line.color, flexShrink:0,
+                  boxShadow:`0 0 0 4px ${line.color}30`,
                 }}/>
-                <span style={{ fontWeight: 700, fontSize: 14, color: line.color, minWidth: 100 }}>
+                <span style={{ fontWeight:700, fontSize:14, color:line.color, minWidth:110 }}>
                   {line.name}
                 </span>
-                <span style={{ fontSize: 13, color: "var(--eb-muted)" }}>{line.route}</span>
+                <span style={{ fontSize:13, color:"#374151" }}>{line.route}</span>
               </div>
             ))}
           </div>
@@ -400,39 +462,47 @@ const PrivateUserProfile = () => {
 
       </div>
 
-      {/* ── Logout Confirm Modal ── */}
+      {/* ── Logout Confirm ── */}
       {showConfirm && (
         <div onClick={() => setConfirm(false)} style={{
-          position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)",
-          display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000,
+          position:"fixed", inset:0, background:"rgba(0,0,0,0.5)",
+          display:"flex", alignItems:"center", justifyContent:"center",
+          zIndex:1000, backdropFilter:"blur(4px)",
         }}>
           <div onClick={e => e.stopPropagation()} style={{
-            background: "white", borderRadius: 20,
-            padding: "36px 32px", maxWidth: 380, width: "100%",
-            boxShadow: "0 24px 64px rgba(0,0,0,0.18)", textAlign: "center",
+            background:"white", borderRadius:24,
+            padding:"40px 36px", maxWidth:380, width:"100%",
+            boxShadow:"0 32px 80px rgba(0,0,0,0.2)", textAlign:"center",
           }}>
-            <div style={{ fontSize: 44, marginBottom: 12 }}>👋</div>
-            <h2 style={{ fontFamily: "var(--eb-font-h)", fontSize: 20, color: "var(--eb-text)", margin: "0 0 8px" }}>
+            <div style={{
+              width:64, height:64, borderRadius:"50%",
+              background:"#FFF1F1", margin:"0 auto 16px",
+              display:"flex", alignItems:"center", justifyContent:"center",
+              fontSize:28,
+            }}>
+              👋
+            </div>
+            <h2 style={{ fontFamily:"var(--eb-font-h)", fontSize:22, color:"var(--eb-text)", margin:"0 0 8px" }}>
               Log out?
             </h2>
-            <p style={{ fontSize: 14, color: "var(--eb-muted)", marginBottom: 28 }}>
-              You'll need to log back in to access your profile.
+            <p style={{ fontSize:14, color:"var(--eb-muted)", marginBottom:28, lineHeight:1.6 }}>
+              You'll need to sign in again to access your account.
             </p>
-            <div style={{ display: "flex", gap: 10 }}>
+            <div style={{ display:"flex", gap:10 }}>
               <button onClick={() => setConfirm(false)} style={{
-                flex: 1, padding: "11px", borderRadius: 10,
-                border: "1.5px solid var(--eb-border)", background: "white",
-                fontFamily: "var(--eb-font)", fontSize: 14, cursor: "pointer",
-                color: "var(--eb-text)",
+                flex:1, padding:"13px", borderRadius:12,
+                border:"1.5px solid var(--eb-border)", background:"white",
+                fontFamily:"var(--eb-font)", fontSize:14, cursor:"pointer",
+                color:"var(--eb-text)", fontWeight:500,
               }}>
                 Cancel
               </button>
               <button onClick={handleLogout} style={{
-                flex: 1, padding: "11px", borderRadius: 10,
-                border: "none", background: "#EF4444",
-                fontFamily: "var(--eb-font)", fontSize: 14, fontWeight: 700,
-                cursor: "pointer", color: "white",
-                boxShadow: "0 2px 8px rgba(239,68,68,0.3)",
+                flex:1, padding:"13px", borderRadius:12,
+                border:"none", background:"linear-gradient(135deg,#EF4444,#dc2626)",
+                fontFamily:"var(--eb-font)", fontSize:14, fontWeight:700,
+                cursor:"pointer", color:"white",
+                boxShadow:"0 4px 14px rgba(239,68,68,0.35)",
               }}>
                 Yes, log out
               </button>
