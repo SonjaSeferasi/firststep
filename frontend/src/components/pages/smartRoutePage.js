@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import "../../exbosHome.css";
+import "leaflet/dist/leaflet.css";
+import { MapContainer, TileLayer, CircleMarker, Polyline, Popup, useMap } from "react-leaflet";
 import getUserInfo from "../../utilities/decodeJwt";
 
 /* ── SVG Icons ── */
@@ -142,6 +144,105 @@ const RouteCard = ({ route, isRecommended, useMiles }) => (
   </div>
 );
 
+/* ── Auto-fit map bounds to the route ── */
+const FitBounds = ({ coords }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (coords.length > 0) map.fitBounds(coords, { padding: [32, 32] });
+  }, [coords, map]);
+  return null;
+};
+
+/* ── Route map panel ── */
+const RouteMap = ({ result }) => {
+  const route = result?.routes?.[0];
+  if (!route) return null;
+
+  // Collect [lat, lng] for every stop across all segments
+  const allCoords = route.segments.flatMap(seg =>
+    (seg.stopCoords || []).map(c => [c.lat, c.lng]).filter(c => c[0] && c[1])
+  );
+  if (allCoords.length === 0) return null;
+
+  // Origin stop marker
+  const originCoord = result.origin?.lat && result.origin?.lng
+    ? [result.origin.lat, result.origin.lng]
+    : null;
+  const originLabel = result.origin?.name || "Origin";
+
+  return (
+    <div style={{ marginTop: 20, borderRadius: 14, overflow: "hidden", border: "1px solid var(--eb-border)", boxShadow: "var(--eb-shadow)" }}>
+      <div style={{ padding: "10px 16px", background: "var(--eb-white)", borderBottom: "1px solid var(--eb-border)", fontSize: 12, fontWeight: 700, color: "var(--eb-muted)", textTransform: "uppercase", letterSpacing: ".6px" }}>
+        Route Map
+      </div>
+      <MapContainer
+        center={allCoords[0]}
+        zoom={13}
+        style={{ height: 340, width: "100%" }}
+        zoomControl={true}
+        scrollWheelZoom={false}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        />
+        <FitBounds coords={allCoords} />
+
+        {/* Draw a colored polyline per segment */}
+        {route.segments.map((seg, si) => {
+          const coords = (seg.stopCoords || [])
+            .map(c => [c.lat, c.lng])
+            .filter(c => c[0] && c[1]);
+          return coords.length > 1
+            ? <Polyline key={si} positions={coords} color={seg.color} weight={5} opacity={0.85} />
+            : null;
+        })}
+
+        {/* Stop markers */}
+        {route.segments.map((seg, si) =>
+          (seg.stopCoords || []).map((coord, ci) => {
+            if (!coord.lat || !coord.lng) return null;
+            const isBoard = ci === 0;
+            const isExit  = ci === seg.stopCoords.length - 1;
+            const isMajor = isBoard || isExit;
+            return (
+              <CircleMarker
+                key={`${si}-${ci}`}
+                center={[coord.lat, coord.lng]}
+                radius={isMajor ? 9 : 5}
+                fillColor={seg.color}
+                color="white"
+                weight={2}
+                fillOpacity={1}
+              >
+                <Popup>
+                  <strong>{seg.stops[ci]}</strong>
+                  {isBoard && <><br/><span style={{ color: "#2563EB", fontSize: 11 }}>Board {seg.line} Line</span></>}
+                  {isExit && !isBoard && <><br/><span style={{ color: "#16A34A", fontSize: 11 }}>Exit here</span></>}
+                </Popup>
+              </CircleMarker>
+            );
+          })
+        )}
+
+        {/* Origin stop marker */}
+        {originCoord && (
+          <CircleMarker
+            center={originCoord}
+            radius={9}
+            fillColor="#3B82F6"
+            color="white"
+            weight={2}
+            fillOpacity={1}
+          >
+            <Popup><strong>{originLabel}</strong><br/><span style={{ color: "#3B82F6", fontSize: 11 }}>Starting point</span></Popup>
+          </CircleMarker>
+        )}
+      </MapContainer>
+    </div>
+  );
+};
+
 /* ══════════════════════════════
    SMART ROUTE PAGE
 ══════════════════════════════ */
@@ -167,12 +268,19 @@ const SmartRoutePage = () => {
     });
   };
 
-  // Auto-search if destination passed via URL query param
+  // Auto-search if destination (and optional origin) passed via URL query params
   useEffect(() => {
-    const dest = searchParams.get("dest");
+    const dest   = searchParams.get("dest");
+    const origin = searchParams.get("origin");
     if (dest) {
       setDestination(dest);
-      detectGPS(true, dest);
+      if (origin) {
+        // Retaking a saved trip — pre-fill origin text and search without GPS
+        setOriginText(origin);
+        setTimeout(() => doSearch(null, null, origin, dest), 50);
+      } else {
+        detectGPS(true, dest);
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -491,6 +599,7 @@ const SmartRoutePage = () => {
                     ))}
                   </div>
                 )}
+                <RouteMap result={result} />
               </>
             )}
 

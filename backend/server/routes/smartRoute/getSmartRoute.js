@@ -190,6 +190,7 @@ function formatRoutes(routes, originId, destId, originDistanceMeters) {
           boardAt: STOPS[seg.stops[0]].name,
           exitAt: STOPS[seg.stops[seg.stops.length - 1]].name,
           stops: seg.stops.map(id => STOPS[id].name),
+          stopCoords: seg.stops.map(id => ({ lat: STOPS[id].lat, lng: STOPS[id].lng })),
           stopCount: seg.stops.length - 1,
         };
       });
@@ -289,7 +290,7 @@ router.post("/", (req, res) => {
         success: true,
         message: `You are already near ${destStop.name}!`,
         routes: [],
-        origin: { stopId: originId, name: originStop.name, distanceMeters, originMode },
+        origin: { stopId: originId, name: originStop.name, lat: originStop.lat, lng: originStop.lng, distanceMeters, originMode },
         destination: { stopId: destId, name: destStop.name },
       });
     }
@@ -307,7 +308,7 @@ router.post("/", (req, res) => {
 
     return res.status(200).json({
       success: true,
-      origin: { stopId: originId, name: originStop.name, distanceMeters, originMode },
+      origin: { stopId: originId, name: originStop.name, lat: originStop.lat, lng: originStop.lng, distanceMeters, originMode },
       destination: { stopId: destId, name: destStop.name },
       routes,
     });

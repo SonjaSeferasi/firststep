@@ -2,6 +2,20 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import getUserInfo from "../../utilities/decodeJwt";
 
+function useDark() {
+  const [isDark, setIsDark] = useState(
+    document.documentElement.getAttribute("data-theme") === "dark"
+  );
+  useEffect(() => {
+    const obs = new MutationObserver(() =>
+      setIsDark(document.documentElement.getAttribute("data-theme") === "dark")
+    );
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => obs.disconnect();
+  }, []);
+  return isDark;
+}
+
 var SUBWAY_LINES = [
   { id: "Red",                             name: "Red Line"    },
   { id: "Orange",                          name: "Orange Line" },
@@ -14,6 +28,7 @@ function ReviewPage() {
   const [searchParams] = useSearchParams();
   const user = getUserInfo();
   const userId = user?._id || user?.id;
+  const isDark = useDark();
 
   const [allStations, setAllStations] = useState([]);
   const [lineStations, setLineStations] = useState({});
@@ -327,20 +342,20 @@ function ReviewPage() {
   var inputStyle = {
     width: "100%",
     padding: "12px 14px",
-    border: "1px solid #d1d5db",
+    border: isDark ? "1px solid #2A3245" : "1px solid #d1d5db",
     borderRadius: "12px",
     fontSize: "15px",
     boxSizing: "border-box",
-    color: "#111827",
-    background: "white",
+    color: isDark ? "#E8EDF5" : "#111827",
+    background: isDark ? "#141926" : "white",
   };
 
   var cardStyle = {
-    background: "white",
+    background: isDark ? "#1A1F2E" : "white",
     borderRadius: "24px",
     padding: "28px",
-    boxShadow: "0 18px 40px rgba(15,23,42,0.08)",
-    border: "1px solid #e5e7eb",
+    boxShadow: isDark ? "0 18px 40px rgba(0,0,0,0.4)" : "0 18px 40px rgba(15,23,42,0.08)",
+    border: isDark ? "1px solid #2A3245" : "1px solid #e5e7eb",
   };
 
   var pillStyle = {
@@ -366,9 +381,9 @@ function ReviewPage() {
 
   var buttonSecondary = {
     padding: "10px 18px",
-    background: "#eef2ff",
-    color: "#1d4ed8",
-    border: "1px solid #dbeafe",
+    background: isDark ? "#1E2A40" : "#eef2ff",
+    color: isDark ? "#93C5FD" : "#1d4ed8",
+    border: isDark ? "1px solid #2A4A80" : "1px solid #dbeafe",
     borderRadius: "10px",
     fontSize: "14px",
     cursor: "pointer",
@@ -378,9 +393,15 @@ function ReviewPage() {
     return {
       padding: "10px 18px",
       borderRadius: "12px",
-      border: active ? "1px solid #003DA5" : "1px solid #e5e7eb",
-      background: active ? "#eff6ff" : "#f8fafc",
-      color: active ? "#003DA5" : "#374151",
+      border: active
+        ? (isDark ? "1px solid #2A4A80" : "1px solid #003DA5")
+        : (isDark ? "1px solid #2A3245" : "1px solid #e5e7eb"),
+      background: active
+        ? (isDark ? "#1E2A40" : "#eff6ff")
+        : (isDark ? "#141926" : "#f8fafc"),
+      color: active
+        ? (isDark ? "#93C5FD" : "#003DA5")
+        : (isDark ? "#8B95A8" : "#374151"),
       fontWeight: active ? 700 : 600,
       cursor: "pointer",
       fontSize: "14px",
@@ -389,19 +410,19 @@ function ReviewPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f4f6f9", padding: "32px 20px" }}>
+    <div style={{ minHeight: "100vh", background: isDark ? "#0F1117" : "#f4f6f9", padding: "32px 20px" }}>
       <div style={{ maxWidth: "980px", margin: "auto", display: "grid", gap: 24 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 16 }}>
             <div>
-              <div style={{ fontSize: 32, fontWeight: 800, color: "#111827", marginBottom: 6 }}>Station Reviews</div>
-              <p style={{ margin: 0, color: "#4b5563", fontSize: 15, maxWidth: 700 }}>
+              <div style={{ fontSize: 32, fontWeight: 800, color: isDark ? "#E8EDF5" : "#111827", marginBottom: 6 }}>Station Reviews</div>
+              <p style={{ margin: 0, color: isDark ? "#A0AABB" : "#4b5563", fontSize: 15, maxWidth: 700 }}>
                 Browse rider reviews, filter by line or station, and submit feedback for the MBTA stops you care about.
               </p>
             </div>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <span style={Object.assign({}, pillStyle, { background: "#e0f2fe", color: "#0369a1" })}>{reviews.length} reviews</span>
-              <span style={Object.assign({}, pillStyle, { background: "#f0f9ff", color: "#1d4ed8" })}>{filterStationName ? filterStationName : "All stations"}</span>
+              <span style={Object.assign({}, pillStyle, { background: isDark ? "#0C1A2E" : "#e0f2fe", color: isDark ? "#60A5FA" : "#0369a1" })}>{reviews.length} reviews</span>
+              <span style={Object.assign({}, pillStyle, { background: isDark ? "#1E2A40" : "#f0f9ff", color: isDark ? "#93C5FD" : "#1d4ed8" })}>{filterStationName ? filterStationName : "All stations"}</span>
             </div>
           </div>
         </div>
@@ -410,11 +431,11 @@ function ReviewPage() {
           <form onSubmit={handleSubmit} style={Object.assign({}, cardStyle, { display: "grid", gap: 24 })}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap" }}>
               <div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: "#111827", marginBottom: 6 }}>Write a review</div>
-                <p style={{ margin: 0, color: "#4b5563", fontSize: 14 }}>Choose a station, rate it, and share your experience with other riders.</p>
+                <div style={{ fontSize: 24, fontWeight: 800, color: isDark ? "#E8EDF5" : "#111827", marginBottom: 6 }}>Write a review</div>
+                <p style={{ margin: 0, color: isDark ? "#A0AABB" : "#4b5563", fontSize: 14 }}>Choose a station, rate it, and share your experience with other riders.</p>
               </div>
               {selectedStationName && (
-                <span style={Object.assign({}, pillStyle, { background: "#eff6ff", color: "#1d4ed8" })}>Selected: {selectedStationName}</span>
+                <span style={Object.assign({}, pillStyle, { background: isDark ? "#1E2A40" : "#eff6ff", color: isDark ? "#93C5FD" : "#1d4ed8" })}>Selected: {selectedStationName}</span>
               )}
             </div>
 
@@ -437,11 +458,11 @@ function ReviewPage() {
           </div>
 
           {/* Tab panel */}
-          <div style={{ border: "1px solid #e5e7eb", borderRadius: "18px", padding: "18px", marginBottom: "0" }}>
+          <div style={{ border: isDark ? "1px solid #2A3245" : "1px solid #e5e7eb", borderRadius: "18px", padding: "18px", marginBottom: "0" }}>
 
             {pickerMode === "search" && (
               <div style={{ position: "relative" }}>
-                <label style={{ fontWeight: 600, display: "block", marginBottom: "10px", color: "#374151" }}>
+                <label style={{ fontWeight: 600, display: "block", marginBottom: "10px", color: isDark ? "#B8C4D4" : "#374151" }}>
                   Search Station
                 </label>
                 <input
@@ -467,9 +488,9 @@ function ReviewPage() {
                     top: "100%",
                     left: 0,
                     right: 0,
-                    border: "1px solid #ccc",
+                    border: isDark ? "1px solid #2A3245" : "1px solid #ccc",
                     borderRadius: "0 0 6px 6px",
-                    background: "#fff",
+                    background: isDark ? "#1A1F2E" : "#fff",
                     zIndex: 10,
                     maxHeight: "200px",
                     overflowY: "auto",
@@ -479,9 +500,9 @@ function ReviewPage() {
                         <div
                           key={s.id}
                           onMouseDown={function() { handleSelectStation(s); }}
-                          style={{ padding: "8px 12px", cursor: "pointer", fontSize: "14px", borderBottom: "1px solid #f0f0f0" }}
-                          onMouseEnter={function(e) { e.currentTarget.style.background = "#f0f5ff"; }}
-                          onMouseLeave={function(e) { e.currentTarget.style.background = "#fff"; }}
+                          style={{ padding: "8px 12px", cursor: "pointer", fontSize: "14px", borderBottom: isDark ? "1px solid #2A3245" : "1px solid #f0f0f0", color: isDark ? "#E8EDF5" : "#111827", background: isDark ? "#1A1F2E" : "#fff" }}
+                          onMouseEnter={function(e) { e.currentTarget.style.background = isDark ? "#1E2A40" : "#f0f5ff"; }}
+                          onMouseLeave={function(e) { e.currentTarget.style.background = isDark ? "#1A1F2E" : "#fff"; }}
                         >
                           {s.name}
                         </div>
@@ -495,7 +516,7 @@ function ReviewPage() {
             {pickerMode === "dropdown" && (
               <div style={{ display: "grid", gap: "16px" }}>
                 <div>
-                  <label style={{ fontWeight: 600, display: "block", marginBottom: "10px", color: "#374151" }}>Line</label>
+                  <label style={{ fontWeight: 600, display: "block", marginBottom: "10px", color: isDark ? "#B8C4D4" : "#374151" }}>Line</label>
                   <select
                     value={selectedLine}
                     onChange={handleLineChange}
@@ -509,7 +530,7 @@ function ReviewPage() {
                 </div>
 
                 <div>
-                  <label style={{ fontWeight: 600, display: "block", marginBottom: "10px", color: "#374151" }}>Station</label>
+                  <label style={{ fontWeight: 600, display: "block", marginBottom: "10px", color: isDark ? "#B8C4D4" : "#374151" }}>Station</label>
                   <select
                     value={selectedStation}
                     onChange={handleDropdownStationChange}
@@ -529,7 +550,7 @@ function ReviewPage() {
 
             {selectedStation && (
               <div style={{ marginTop: "16px", display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
-                <span style={Object.assign({}, pillStyle, { background: "#eff6ff", color: "#1d4ed8" })}>{selectedStationName}</span>
+                <span style={Object.assign({}, pillStyle, { background: isDark ? "#1E2A40" : "#eff6ff", color: isDark ? "#93C5FD" : "#1d4ed8" })}>{selectedStationName}</span>
                 <Link
                   to={`/stations/${selectedStation}`}
                   style={Object.assign({}, buttonSecondary, { padding: "8px 14px", fontSize: "13px" })}
@@ -541,7 +562,7 @@ function ReviewPage() {
           </div>
 
           {/* Rating */}
-          <label style={{ fontWeight: 600, display: "block", marginBottom: "6px" }}>Rating</label>
+          <label style={{ fontWeight: 600, display: "block", marginBottom: "6px", color: isDark ? "#B8C4D4" : "#374151" }}>Rating</label>
           <select
             value={rating}
             onChange={function(e) { setRating(e.target.value); }}
@@ -555,7 +576,7 @@ function ReviewPage() {
           </select>
 
           <div style={{ display: "grid", gap: "10px" }}>
-            <label style={{ fontWeight: 600, color: "#374151" }}>Review</label>
+            <label style={{ fontWeight: 600, color: isDark ? "#B8C4D4" : "#374151" }}>Review</label>
             <textarea
               rows="5"
               style={Object.assign({}, inputStyle, { minHeight: "130px", resize: "vertical" })}
@@ -585,7 +606,7 @@ function ReviewPage() {
         </form>
       ) : (
         <div style={Object.assign({}, cardStyle, { textAlign: "center" })}>
-          <p style={{ margin: 0, color: "#4b5563" }}>You must be logged in to write a review.</p>
+          <p style={{ margin: 0, color: isDark ? "#A0AABB" : "#4b5563" }}>You must be logged in to write a review.</p>
           <button
             type="button"
             onClick={function() { navigate("/login"); }}
@@ -598,13 +619,13 @@ function ReviewPage() {
 
       <div style={Object.assign({}, cardStyle, { display: "grid", gap: 24 })}>
         <div>
-          <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, color: "#111827" }}>Filter reviews</div>
-          <p style={{ margin: 0, color: "#4b5563" }}>Choose a station or sort order to narrow the review feed.</p>
+          <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, color: isDark ? "#E8EDF5" : "#111827" }}>Filter reviews</div>
+          <p style={{ margin: 0, color: isDark ? "#A0AABB" : "#4b5563" }}>Choose a station or sort order to narrow the review feed.</p>
         </div>
 
         <div style={{ display: "grid", gap: 18 }}>
           <div>
-            <label style={{ fontWeight: 600, display: "block", marginBottom: "10px", color: "#374151" }}>Filter by Station</label>
+            <label style={{ fontWeight: 600, display: "block", marginBottom: "10px", color: isDark ? "#B8C4D4" : "#374151" }}>Filter by Station</label>
             <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "16px" }}>
               <button
                 type="button"
@@ -622,7 +643,7 @@ function ReviewPage() {
               </button>
             </div>
 
-            <div style={{ border: "1px solid #e5e7eb", borderRadius: "18px", background: "#f8fafc", padding: "18px" }}>
+            <div style={{ border: isDark ? "1px solid #2A3245" : "1px solid #e5e7eb", borderRadius: "18px", background: isDark ? "#141926" : "#f8fafc", padding: "18px" }}>
               {filterPickerMode === "search" && (
                 <div style={{ position: "relative" }}>
                   <input
@@ -648,9 +669,9 @@ function ReviewPage() {
                       top: "100%",
                       left: 0,
                       right: 0,
-                      border: "1px solid #d1d5db",
+                      border: isDark ? "1px solid #2A3245" : "1px solid #d1d5db",
                       borderRadius: "0 0 12px 12px",
-                      background: "#fff",
+                      background: isDark ? "#1A1F2E" : "#fff",
                       zIndex: 10,
                       maxHeight: "220px",
                       overflowY: "auto",
@@ -660,9 +681,9 @@ function ReviewPage() {
                           <div
                             key={s.id}
                             onMouseDown={function() { handleSelectFilterStation(s); }}
-                            style={{ padding: "10px 14px", cursor: "pointer", fontSize: "14px", borderBottom: "1px solid #f0f0f0" }}
-                            onMouseEnter={function(e) { e.currentTarget.style.background = "#f0f5ff"; }}
-                            onMouseLeave={function(e) { e.currentTarget.style.background = "#fff"; }}
+                            style={{ padding: "10px 14px", cursor: "pointer", fontSize: "14px", borderBottom: isDark ? "1px solid #2A3245" : "1px solid #f0f0f0", color: isDark ? "#E8EDF5" : "#111827", background: isDark ? "#1A1F2E" : "#fff" }}
+                            onMouseEnter={function(e) { e.currentTarget.style.background = isDark ? "#1E2A40" : "#f0f5ff"; }}
+                            onMouseLeave={function(e) { e.currentTarget.style.background = isDark ? "#1A1F2E" : "#fff"; }}
                           >
                             {s.name}
                           </div>
@@ -676,7 +697,7 @@ function ReviewPage() {
               {filterPickerMode === "dropdown" && (
                 <div style={{ display: "grid", gap: "16px" }}>
                   <div>
-                    <label style={{ fontWeight: 600, display: "block", marginBottom: "10px", color: "#374151" }}>Line</label>
+                    <label style={{ fontWeight: 600, display: "block", marginBottom: "10px", color: isDark ? "#B8C4D4" : "#374151" }}>Line</label>
                     <select
                       value={filterSelectedLine}
                       onChange={handleFilterLineChange}
@@ -690,7 +711,7 @@ function ReviewPage() {
                   </div>
 
                   <div>
-                    <label style={{ fontWeight: 600, display: "block", marginBottom: "10px", color: "#374151" }}>Station</label>
+                    <label style={{ fontWeight: 600, display: "block", marginBottom: "10px", color: isDark ? "#B8C4D4" : "#374151" }}>Station</label>
                     <select
                       value={filterStationId}
                       onChange={handleDropdownFilterStationChange}
@@ -710,7 +731,7 @@ function ReviewPage() {
 
               {filterStationId && (
                 <div style={{ marginTop: "16px", display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
-                  <span style={Object.assign({}, pillStyle, { background: "#eff6ff", color: "#1d4ed8" })}>
+                  <span style={Object.assign({}, pillStyle, { background: isDark ? "#1E2A40" : "#eff6ff", color: isDark ? "#93C5FD" : "#1d4ed8" })}>
                     Filtered by: {filterStationName}
                   </span>
                   <Link
@@ -722,7 +743,7 @@ function ReviewPage() {
                   <button
                     type="button"
                     onClick={handleClearFilterStation}
-                    style={Object.assign({}, buttonSecondary, { background: "white", borderColor: "#d1d5db" })}
+                    style={Object.assign({}, buttonSecondary, { background: isDark ? "#1A1F2E" : "white", borderColor: isDark ? "#2A3245" : "#d1d5db" })}
                   >
                     Clear Filter
                   </button>
@@ -733,14 +754,14 @@ function ReviewPage() {
 
           <div style={{ display: "grid", gap: "14px", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
             <div style={{ display: "grid", gap: "8px" }}>
-              <label style={{ fontWeight: 600, color: "#374151" }}>Sort</label>
+              <label style={{ fontWeight: 600, color: isDark ? "#B8C4D4" : "#374151" }}>Sort</label>
               <select value={sort} onChange={function(e) { setSort(e.target.value); }} style={inputStyle}>
                 <option value="newest">Newest</option>
                 <option value="highest">Highest Rating</option>
               </select>
             </div>
             <div style={{ display: "grid", gap: "8px" }}>
-              <label style={{ fontWeight: 600, color: "#374151" }}>Rating</label>
+              <label style={{ fontWeight: 600, color: isDark ? "#B8C4D4" : "#374151" }}>Rating</label>
               <select value={filterRating} onChange={function(e) { setFilterRating(e.target.value); }} style={inputStyle}>
                 <option value="">All</option>
                 <option value="5">5 ⭐</option>
@@ -756,17 +777,17 @@ function ReviewPage() {
 
       <div style={{ display: "grid", gap: "18px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
-          <div style={{ fontSize: "22px", fontWeight: 700, color: "#111827" }}>
+          <div style={{ fontSize: "22px", fontWeight: 700, color: isDark ? "#E8EDF5" : "#111827" }}>
             Reviews{filterStationName ? " — " + filterStationName : ""}
           </div>
-          <span style={Object.assign({}, pillStyle, { background: "#f8fafc", color: "#0f172a" })}>{reviews.length} reviews</span>
+          <span style={Object.assign({}, pillStyle, { background: isDark ? "#1A1F2E" : "#f8fafc", color: isDark ? "#E8EDF5" : "#0f172a" })}>{reviews.length} reviews</span>
         </div>
 
         </div>
 
         <div style={{ display: "grid", gap: "16px" }}>
           {reviews.length === 0 ? (
-            <p style={{ color: "#6b7280" }}>
+            <p style={{ color: isDark ? "#8B95A8" : "#6b7280" }}>
               {filterStationName
                 ? "No reviews yet for " + filterStationName + "."
                 : "No reviews yet. Be the first to write one!"}
@@ -782,25 +803,25 @@ function ReviewPage() {
               return (
                 <div
                   key={review._id}
-                  style={Object.assign({}, cardStyle, { padding: "18px", borderColor: "#e5e7eb" })}
+                  style={Object.assign({}, cardStyle, { padding: "18px", borderColor: isDark ? "#2A3245" : "#e5e7eb" })}
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", flexWrap: "wrap", marginBottom: "12px" }}>
                     <div>
-                      <div style={{ fontSize: "16px", fontWeight: 700, marginBottom: "6px" }}>
+                      <div style={{ fontSize: "16px", fontWeight: 700, marginBottom: "6px", color: isDark ? "#E8EDF5" : "#111827" }}>
                         {review.rating} ⭐ Rating
                       </div>
-                      <div style={{ color: "#4b5563", fontSize: "14px" }}>{review.reviewText.slice(0, 80) + (review.reviewText.length > 80 ? "..." : "")}</div>
+                      <div style={{ color: isDark ? "#A0AABB" : "#4b5563", fontSize: "14px" }}>{review.reviewText.slice(0, 80) + (review.reviewText.length > 80 ? "..." : "")}</div>
                     </div>
-                    <span style={{ color: "#003DA5", fontWeight: 600, fontSize: "14px" }}>
+                    <span style={{ color: isDark ? "#60A5FA" : "#003DA5", fontWeight: 600, fontSize: "14px" }}>
                       📍 {stationName}
                     </span>
                   </div>
 
-                  <div style={{ color: "#111827", lineHeight: 1.7 }}>
+                  <div style={{ color: isDark ? "#E8EDF5" : "#111827", lineHeight: 1.7 }}>
                     {review.reviewText}
                   </div>
 
-                  <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "12px", marginTop: "16px", color: "#6b7280", fontSize: "13px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "12px", marginTop: "16px", color: isDark ? "#8B95A8" : "#6b7280", fontSize: "13px" }}>
                     <span>{(review.userId && review.userId.name) ? review.userId.name : "User"}</span>
                     <span>{new Date(review.createdAt).toLocaleDateString()}</span>
                   </div>
