@@ -395,4 +395,5 @@ const PointOfInterestPage = () => {
   );
 };
 
-export default PointOfInterestPage;
+
+export default PointOfInterestPage; 
