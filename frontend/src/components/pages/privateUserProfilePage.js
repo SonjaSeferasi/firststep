@@ -42,6 +42,14 @@ const PrivateUserProfile = () => {
   const [profileForm, setProfileForm]       = useState({ firstName: "", lastName: "" });
   const [savingProfile, setSavingProfile]   = useState(false);
   const [showConfirm, setConfirm] = useState(false);
+
+  // Change password state
+  const [editingPw, setEditingPw]   = useState(false);
+  const [pwForm, setPwForm]         = useState({ current: "", next: "", confirm: "" });
+  const [savingPw, setSavingPw]     = useState(false);
+  const [pwError, setPwError]       = useState("");
+  const [pwSuccess, setPwSuccess]   = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -98,6 +106,28 @@ const PrivateUserProfile = () => {
       setLastName(profileForm.lastName);
       setEditingProfile(false);
     } catch {} finally { setSavingProfile(false); }
+  };
+
+  const handleChangePassword = async () => {
+    setPwError("");
+    setPwSuccess(false);
+    if (!pwForm.current || !pwForm.next || !pwForm.confirm) { setPwError("All fields are required."); return; }
+    if (pwForm.next !== pwForm.confirm) { setPwError("New passwords do not match."); return; }
+    if (pwForm.next.length < 8) { setPwError("New password must be at least 8 characters."); return; }
+    setSavingPw(true);
+    try {
+      const res = await fetch("http://localhost:8081/user/changePassword", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id, currentPassword: pwForm.current, newPassword: pwForm.next }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setPwError(data.message || "Failed to change password."); return; }
+      setPwSuccess(true);
+      setPwForm({ current: "", next: "", confirm: "" });
+      setTimeout(() => { setEditingPw(false); setPwSuccess(false); }, 2000);
+    } catch { setPwError("Server error. Please try again."); }
+    finally { setSavingPw(false); }
   };
 
   const handleLogout = () => { localStorage.clear(); navigate("/login"); };
@@ -416,6 +446,93 @@ const PrivateUserProfile = () => {
                 ))}
               </div>
             )}
+
+            {/* ── Change Password (inside Profile Settings) ── */}
+            <div style={{ borderTop:"1px solid var(--eb-border)", marginTop:24, paddingTop:20 }}>
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom: editingPw ? 16 : 0 }}>
+                <div>
+                  <div style={{ fontSize:13, fontWeight:700, color:"var(--eb-text)" }}>Password</div>
+                  {!editingPw && <div style={{ fontSize:13, color:"var(--eb-muted)", marginTop:4 }}>••••••••</div>}
+                </div>
+                {!editingPw && (
+                  <button
+                    onClick={() => { setEditingPw(true); setPwError(""); setPwSuccess(false); setPwForm({ current:"", next:"", confirm:"" }); }}
+                    style={{
+                      display:"flex", alignItems:"center", gap:6,
+                      padding:"7px 16px", borderRadius:8,
+                      border:"1.5px solid var(--eb-border)", background:"white",
+                      fontFamily:"var(--eb-font)", fontSize:13, fontWeight:600,
+                      color:"var(--eb-text)", cursor:"pointer",
+                      transition:"border-color 0.2s, color 0.2s",
+                    }}
+                    onMouseOver={e => { e.currentTarget.style.borderColor="var(--eb-blue)"; e.currentTarget.style.color="var(--eb-blue)"; }}
+                    onMouseOut={e => { e.currentTarget.style.borderColor="var(--eb-border)"; e.currentTarget.style.color="var(--eb-text)"; }}
+                  >
+                    <IcoEdit /> Change
+                  </button>
+                )}
+              </div>
+
+              {editingPw && (
+                <div style={{ display:"flex", flexDirection:"column", gap:14 }}>
+                  {[
+                    { key:"current", label:"CURRENT PASSWORD",     placeholder:"Enter current password" },
+                    { key:"next",    label:"NEW PASSWORD",          placeholder:"At least 8 characters"  },
+                    { key:"confirm", label:"CONFIRM NEW PASSWORD",  placeholder:"Repeat new password"     },
+                  ].map(f => (
+                    <div key={f.key}>
+                      <div style={{ fontSize:11, fontWeight:700, color:"var(--eb-muted)", letterSpacing:"0.07em", marginBottom:7 }}>{f.label}</div>
+                      <input
+                        type="password"
+                        placeholder={f.placeholder}
+                        value={pwForm[f.key]}
+                        onChange={e => setPwForm(p => ({ ...p, [f.key]: e.target.value }))}
+                        style={{
+                          width:"100%", boxSizing:"border-box",
+                          padding:"11px 14px",
+                          border:"1.5px solid var(--eb-border)", borderRadius:10,
+                          fontFamily:"var(--eb-font)", fontSize:14, outline:"none",
+                          background:"var(--eb-bg)", transition:"border-color 0.2s",
+                        }}
+                        onFocus={e => e.target.style.borderColor="var(--eb-blue)"}
+                        onBlur={e => e.target.style.borderColor="var(--eb-border)"}
+                      />
+                    </div>
+                  ))}
+
+                  {pwError && (
+                    <div style={{ fontSize:13, color:"#EF4444", background:"#FFF1F1", padding:"10px 14px", borderRadius:8 }}>
+                      {pwError}
+                    </div>
+                  )}
+                  {pwSuccess && (
+                    <div style={{ fontSize:13, color:"#16A34A", background:"#F0FDF4", padding:"10px 14px", borderRadius:8 }}>
+                      ✓ Password changed successfully!
+                    </div>
+                  )}
+
+                  <div style={{ display:"flex", gap:10 }}>
+                    <button onClick={handleChangePassword} disabled={savingPw} style={{
+                      padding:"11px 24px", borderRadius:10,
+                      background:"var(--eb-blue)", color:"white", border:"none",
+                      fontFamily:"var(--eb-font)", fontSize:13, fontWeight:700,
+                      cursor:"pointer", opacity:savingPw ? 0.7 : 1,
+                      boxShadow:"0 4px 12px rgba(0,61,165,0.3)",
+                    }}>
+                      {savingPw ? "Saving…" : "Save password"}
+                    </button>
+                    <button onClick={() => { setEditingPw(false); setPwError(""); setPwForm({ current:"", next:"", confirm:"" }); }} style={{
+                      padding:"11px 18px", borderRadius:10,
+                      background:"var(--eb-bg)", color:"var(--eb-muted)",
+                      border:"1.5px solid var(--eb-border)",
+                      fontFamily:"var(--eb-font)", fontSize:13, cursor:"pointer",
+                    }}>
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

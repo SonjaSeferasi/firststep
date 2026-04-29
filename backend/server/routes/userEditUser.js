@@ -78,4 +78,27 @@ router.post('/updateProfile', async (req, res) => {
   }
 });
 
+// POST /user/changePassword
+router.post('/changePassword', async (req, res) => {
+  const { userId, currentPassword, newPassword } = req.body;
+  if (!userId || !currentPassword || !newPassword)
+    return res.status(400).send({ message: "All fields are required." });
+  if (newPassword.length < 8)
+    return res.status(400).send({ message: "New password must be at least 8 characters." });
+  try {
+    const user = await newUserModel.findById(userId);
+    if (!user) return res.status(404).send({ message: "User not found." });
+
+    const match = await bcrypt.compare(currentPassword, user.password);
+    if (!match) return res.status(401).send({ message: "Current password is incorrect." });
+
+    const salt = await bcrypt.genSalt(10);
+    const hashed = await bcrypt.hash(newPassword, salt);
+    await newUserModel.findByIdAndUpdate(userId, { password: hashed });
+    res.status(200).send({ message: "Password updated successfully." });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+});
+
 module.exports = router;
