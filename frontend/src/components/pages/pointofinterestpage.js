@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import "../../exbosHome.css";
+import "leaflet/dist/leaflet.css";
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
 
 const MILES_TO_METERS = 1609.34;
 
@@ -11,6 +13,15 @@ const lineColors = {
   Orange: "#ED8B00",
   Blue: "#003DA5",
   Green: "#00843D",
+};
+
+/* Smoothly fly to a stop when selected */
+const FlyTo = ({ coord }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (coord) map.flyTo(coord, 15, { duration: 1 });
+  }, [coord, map]);
+  return null;
 };
 
 const PointOfInterestPage = () => {
@@ -204,21 +215,74 @@ const PointOfInterestPage = () => {
                 color: "var(--eb-muted)",
               }}
             >
-              Use the map as a visual guide while selecting a stop to view nearby
-              places.
+              Click any stop on the map or use the list to explore nearby places.
+              Selected stop is highlighted — yellow dots show POIs.
             </p>
 
-            <img
-              src="/MBTAPIC.png"
-              alt="MBTA Map"
-              style={{
-                width: "100%",
-                height: "260px",
-                objectFit: "cover",
-                borderRadius: "14px",
-                border: "1px solid var(--eb-border)",
-              }}
-            />
+            <div style={{ borderRadius: "14px", overflow: "hidden", border: "1px solid var(--eb-border)" }}>
+              <MapContainer
+                center={[42.3601, -71.0589]}
+                zoom={12}
+                style={{ height: "340px", width: "100%" }}
+                scrollWheelZoom={false}
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                />
+
+                {/* Fly to selected stop */}
+                {selectedStop?.latitude && selectedStop?.longitude && (
+                  <FlyTo coord={[selectedStop.latitude, selectedStop.longitude]} />
+                )}
+
+                {/* All MBTA stop dots */}
+                {stops.map((stop) => {
+                  const isSelected = selectedStop?.stopId === stop.stopId && selectedStop?.line === stop.line;
+                  return (
+                    <CircleMarker
+                      key={`${stop.line}-${stop.stopId}`}
+                      center={[stop.latitude, stop.longitude]}
+                      radius={isSelected ? 10 : 6}
+                      fillColor={lineColors[stop.line] || "#888"}
+                      color="white"
+                      weight={isSelected ? 3 : 1.5}
+                      fillOpacity={isSelected ? 1 : 0.85}
+                      eventHandlers={{ click: () => handleStopClick(stop) }}
+                    >
+                      <Popup>
+                        <strong>{stop.stopName}</strong><br/>
+                        <span style={{ color: lineColors[stop.line], fontSize: 11, fontWeight: 700 }}>
+                          {stop.line} Line
+                        </span>
+                      </Popup>
+                    </CircleMarker>
+                  );
+                })}
+
+                {/* POI markers */}
+                {selectedStop && pois.map((poi, i) => (
+                  poi.latitude && poi.longitude ? (
+                    <CircleMarker
+                      key={i}
+                      center={[poi.latitude, poi.longitude]}
+                      radius={5}
+                      fillColor="#F59E0B"
+                      color="white"
+                      weight={1.5}
+                      fillOpacity={0.9}
+                    >
+                      <Popup>
+                        <strong>{poi.name}</strong><br/>
+                        <span style={{ fontSize: 11, color: "#6b7280" }}>
+                          {poi.category}{poi.distanceMiles ? ` · ${poi.distanceMiles} mi` : ""}
+                        </span>
+                      </Popup>
+                    </CircleMarker>
+                  ) : null
+                ))}
+              </MapContainer>
+            </div>
           </div>
 
           <div

@@ -190,6 +190,7 @@ function formatRoutes(routes, originId, destId, originDistanceMeters) {
           boardAt: STOPS[seg.stops[0]].name,
           exitAt: STOPS[seg.stops[seg.stops.length - 1]].name,
           stops: seg.stops.map(id => STOPS[id].name),
+          stopIds: seg.stops,
           stopCoords: seg.stops.map(id => ({ lat: STOPS[id].lat, lng: STOPS[id].lng })),
           stopCount: seg.stops.length - 1,
         };

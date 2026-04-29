@@ -27,11 +27,6 @@ const getStationsRoute = require("./routes/stations/getStations");
 const createStationReviewRoute = require("./routes/stations/postStationReview");
 const getNearbyLocationsRoute = require("./routes/pois/getNearbyLocations");
 
-const getStationsRoute = require("./routes/stations/getStations");
-const createStationReviewRoute = require("./routes/stations/postStationReview");
-
-const getNearbyLocationsRoute = require("./routes/pois/getNearbyLocations");
-
 const { loadStops } = require("./data/mbtaStops");
 
 
@@ -59,11 +54,6 @@ app.use("/api/pois", getPois);
 app.use("/api/smart-route", smartRoute);
 app.use("/api/stations", getStationsRoute);
 app.use("/api/stations", createStationReviewRoute);
-app.use("/api/pois", getNearbyLocationsRoute);
-
-app.use("/api/stations", getStationsRoute);
-app.use("/api/stations", createStationReviewRoute);
-
 app.use("/api/pois", getNearbyLocationsRoute);
 
 

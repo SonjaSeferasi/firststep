@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import axios from "axios";
 import "../../exbosHome.css";
 import "leaflet/dist/leaflet.css";
@@ -71,6 +71,7 @@ const RouteSegment = ({ segment, isLast }) => (
       {segment.stops.map((stop, i) => {
         const isFirst = i === 0;
         const isLastStop = i === segment.stops.length - 1;
+        const stopId = segment.stopIds?.[i];
         return (
           <div key={i} className={`sr-stop-row ${isFirst ? "sr-board" : isLastStop ? "sr-exit" : ""}`}>
             <div className="sr-stop-dot-col">
@@ -78,7 +79,15 @@ const RouteSegment = ({ segment, isLast }) => (
               {!isLastStop && <div className="sr-stop-line" style={{ background: segment.color + "40" }}/>}
             </div>
             <div className="sr-stop-name">
-              {stop}
+              {stopId ? (
+                <Link
+                  to={`/stations/${stopId}`}
+                  style={{ color: "inherit", textDecoration: "none", borderBottom: "1px dotted currentColor" }}
+                  title={`View ${stop} station`}
+                >
+                  {stop}
+                </Link>
+              ) : stop}
               {isFirst && <span className="sr-action-tag sr-board-tag">Board</span>}
               {isLastStop && !isLast && <span className="sr-action-tag sr-transfer-tag"><IcoTransfer/> Transfer</span>}
               {isLastStop && isLast && <span className="sr-action-tag sr-exit-tag"><IcoCheck/> Exit</span>}
